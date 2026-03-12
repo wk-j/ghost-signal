@@ -10,6 +10,7 @@ synthesized UI sounds.
 |---|---|
 | [Ghost Signal](ghost-signal/) | Cyberpunk-noir — chrome, neon, and rain |
 | [Chill City FM](chill-city-fm/) | Warm lo-fi retro — CRT, VHS, boombox, wood paneling |
+| [Orbit Deck](orbit-deck/) | Near-future EVA — spacesuit seals, visor HUD, radio comms |
 
 ## Try It
 
