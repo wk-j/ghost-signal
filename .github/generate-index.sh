@@ -5,21 +5,21 @@ cards=""
 for dir in */; do
   dir="${dir%/}"
   spec="$dir/$dir.md"
-  html="$dir/index.html"
-  [ -f "$spec" ] && [ -f "$html" ] || continue
+  sounds="$dir/sounds.js"
+  [ -f "$spec" ] && [ -f "$sounds" ] || continue
 
   name=$(head -1 "$spec" | sed 's/^# //')
   desc=$(sed -n '3p' "$spec" | sed 's/^> //')
 
-  # Extract first 5 hex colors from :root block (works regardless of variable names)
-  colors=( $(grep -oE '#[0-9A-Fa-f]{6}' "$html" | head -5) )
+  # Extract first 5 hex colors from sounds.js meta.colors block
+  colors=( $(grep -oE "'#[0-9A-Fa-f]{6}'" "$sounds" | sed "s/'//g" | head -5) )
   accent="${colors[0]:-#888}"
   accent2="${colors[1]:-#888}"
   danger="${colors[2]:-#888}"
   bg="${colors[3]:-#888}"
   surface="${colors[4]:-#888}"
 
-  cards="$cards<a class=\"theme-card\" href=\"$dir/\"><div class=\"name\">$name</div><div class=\"desc\">$desc</div><div class=\"colors\"><div class=\"swatch\" style=\"background:$accent\"></div><div class=\"swatch\" style=\"background:$accent2\"></div><div class=\"swatch\" style=\"background:$danger\"></div><div class=\"swatch\" style=\"background:$bg\"></div><div class=\"swatch\" style=\"background:$surface\"></div></div></a>"
+  cards="$cards<a class=\"theme-card\" href=\"demo.html?theme=$dir\"><div class=\"name\">$name</div><div class=\"desc\">$desc</div><div class=\"colors\"><div class=\"swatch\" style=\"background:$accent\"></div><div class=\"swatch\" style=\"background:$accent2\"></div><div class=\"swatch\" style=\"background:$danger\"></div><div class=\"swatch\" style=\"background:$bg\"></div><div class=\"swatch\" style=\"background:$surface\"></div></div></a>"
 done
 
 cat > index.html << 'EOF'

@@ -5,19 +5,21 @@
 ## Project Overview
 
 Ghost Signal is a collection of **browser audio themes** — sound palettes for UI
-sonification built entirely with the Web Audio API. Each theme is a standalone
-directory containing a design spec (`.md`) and an interactive demo (`index.html`).
+sonification built entirely with the Web Audio API. Each theme is an ES module
+(`sounds.js`) loaded by a shared demo page (`demo.html`).
 There is **no build step, no bundler, no package manager, and no dependencies**.
 
 ## Repository Structure
 
 ```
 ghost-signal/
+  demo.html            # Shared demo page — loads any theme via ?theme=<name>
   TEMPLATE.md          # Theme design spec template (fill-in-the-blanks)
-  TEMPLATE.html        # Interactive demo page template
+  TEMPLATE.js          # Theme sounds.js template
   <theme-name>/        # One directory per theme (kebab-case)
     <theme-name>.md    # Design spec — mood, colors, 16 sound definitions
-    index.html         # Self-contained HTML demo — inline CSS + JS
+    sounds.js          # ES module — exports { meta, createSounds }
+    index.html         # Thin redirect → ../demo.html?theme=<theme-name>
 ```
 
 ## Build / Lint / Test Commands
@@ -26,22 +28,53 @@ There are **none**. This is a zero-tooling static HTML project.
 
 - **No `package.json`**, no npm scripts, no Makefile
 - **No linter** (no ESLint, Prettier, Biome)
-- **No test framework** — verification is manual (open `index.html` in a browser)
-- **No CI/CD** pipeline
+- **No test framework** — verification is manual (open in a browser)
+- **No CI/CD** pipeline (GitHub Actions only generates the landing page)
 
-To verify a theme works, open its `index.html` directly in a browser, click
-"Click to initialise AudioContext", and test all 16 sounds interactively.
+To verify a theme works, open `demo.html?theme=<theme-name>` in a browser,
+click "Click to initialise AudioContext", and test all 16 sounds interactively.
 
 ## Creating a New Theme
 
 1. Create a directory: `<theme-name>/` (kebab-case)
 2. Copy `TEMPLATE.md` → `<theme-name>/<theme-name>.md`, fill in all `{{…}}` tokens
-3. Copy `TEMPLATE.html` → `<theme-name>/index.html`, then:
-   - Set the 9 CSS color variables in `:root`
-   - Fill in heading, subtitle, button metadata, and placeholder text
-   - Implement all 16 `sounds.*` functions with Web Audio synthesis
-4. Every theme **must define exactly 16 sounds** (12 browser + 4 keyboard)
-5. All synthesis uses **Web Audio API only** — no sample files
+3. Copy `TEMPLATE.js` → `<theme-name>/sounds.js`, then:
+   - Fill in `meta` object: name, subtitle, colors (9 values), placeholder, sounds (16 entries)
+   - Implement all 16 sound functions inside `createSounds(ctx, noiseBuffer)`
+4. Create `<theme-name>/index.html` as a thin redirect:
+   ```html
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>{{Theme Name}} — Audio Theme</title>
+   <script>location.replace('../demo.html?theme={{theme-name}}');</script>
+   </head>
+   <body></body>
+   </html>
+   ```
+5. Every theme **must define exactly 16 sounds** (12 browser + 4 keyboard)
+6. All synthesis uses **Web Audio API only** — no sample files
+
+### sounds.js Module Contract
+
+Each `sounds.js` exports a default object with two properties:
+
+```javascript
+export default { meta, createSounds };
+```
+
+- **`meta`** — UI metadata object:
+  - `name` — display name (e.g. `'Ghost Signal'`)
+  - `subtitle` — tagline (e.g. `'Cyberpunk-noir audio theme'`)
+  - `colors` — object with 9 keys: `accent`, `accent2`, `danger`, `bg`, `surface`,
+    `surface2`, `border`, `text`, `textDim` (hex strings)
+  - `placeholder` — textarea placeholder text
+  - `sounds` — object keyed by sound ID, each with `{ label, meta, desc }`
+
+- **`createSounds(ctx, noiseBuffer)`** — factory function receiving an `AudioContext`
+  and a `noiseBuffer(duration)` helper. Returns an object of 16 sound functions.
 
 ### Required Sound IDs
 
@@ -98,7 +131,7 @@ To verify a theme works, open its `index.html` directly in a browser, click
 - Standard `<!DOCTYPE html>` with `lang="en"`
 - Inline event handlers: `onclick="play('CLICK')"`, `onmouseenter="play('HOVER')"`
 - No self-closing void elements (use `<meta ...>` not `<meta ... />`)
-- All CSS and JS inline — no external files
+- All CSS inline in `demo.html` — sound logic in external `sounds.js` modules
 
 ### Comments
 

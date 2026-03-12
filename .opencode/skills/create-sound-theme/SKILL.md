@@ -1,7 +1,7 @@
 ---
 name: create-sound-theme
 description: "Create a new Ghost Signal audio theme from images, visual references, text descriptions, or concept prompts. Use this skill when users want to create a new sound theme from an image, photo, screenshot, or artwork. Also triggers on: \"new theme\", \"create theme\", \"sound theme\", \"audio theme\", \"sound palette\", \"analyze this image\", \"theme from image\", or any request to turn a visual into browser sounds."
-version: "1.1.0"
+version: "2.0.0"
 ---
 
 # Create Sound Theme
@@ -13,13 +13,13 @@ cohesive sound palette.
 
 ## Critical Rules (Read First!)
 
-1. **Every theme has exactly 2 files**: `<theme-name>.md` (spec) and `index.html` (demo)
+1. **Every theme has exactly 3 files**: `<theme-name>.md` (spec), `sounds.js` (ES module), and `index.html` (thin redirect)
 2. **Every theme has exactly 16 sounds** — no more, no fewer
 3. **Web Audio API only** — no sample files, no `<audio>` elements, no fetch
-4. **All CSS and JS must be inline** — no external files whatsoever
-5. **Do NOT modify shared UI code** — only customize the Sound Definitions section and CSS variables
-6. **Use `TEMPLATE.md` and `TEMPLATE.html`** as the structural base — read them first
-7. **No build step** — themes are static HTML opened directly in a browser
+4. **Sound logic goes in `sounds.js`** — the shared `demo.html` handles all UI
+5. **Do NOT modify `demo.html`** — it loads themes dynamically via `?theme=<name>`
+6. **Use `TEMPLATE.md` and `TEMPLATE.js`** as the structural base — read them first
+7. **No build step** — themes are ES modules loaded by the browser natively
 
 ## Workflow: Image → Sound Theme
 
@@ -36,7 +36,9 @@ Image provided
 │
 ├─► 4. WRITE spec file (<theme-name>.md)
 │
-└─► 5. WRITE demo file (index.html) with full Web Audio synthesis
+├─► 5. WRITE sounds.js ES module with meta + createSounds factory
+│
+└─► 6. WRITE thin index.html redirect
 ```
 
 ### Image Analysis Procedure
@@ -143,19 +145,19 @@ Extract these from the source material:
 
 ### Color Palette Rules
 
-All 9 CSS variables are **required**:
+All 9 color values are **required** in `meta.colors`:
 
-```css
-:root {
-  --accent:   #______;  /* Primary — headings, active states */
-  --accent2:  #______;  /* Secondary — hover highlights, toggles */
-  --danger:   #______;  /* Destructive — tab close hover */
-  --bg:       #______;  /* Page background (darkest) */
-  --surface:  #______;  /* Card background */
-  --surface2: #______;  /* Elevated surface / hover */
-  --border:   #______;  /* Separators */
-  --text:     #______;  /* Primary text */
-  --text-dim: #______;  /* Muted text */
+```javascript
+colors: {
+  accent:   '#______',  // Primary — headings, active states
+  accent2:  '#______',  // Secondary — hover highlights, toggles
+  danger:   '#______',  // Destructive — tab close hover
+  bg:       '#______',  // Page background (darkest)
+  surface:  '#______',  // Card background
+  surface2: '#______',  // Elevated surface / hover
+  border:   '#______',  // Separators
+  text:     '#______',  // Primary text
+  textDim:  '#______',  // Muted text
 }
 ```
 
@@ -212,27 +214,41 @@ Follow `TEMPLATE.md` structure exactly. For each of the 16 sounds, specify:
 - **Synthesis** — exact Web Audio recipe (oscillator types, frequencies, filter
   specs, gain envelopes, noise layers — specific enough to implement without guessing)
 
-### 3c. Write `index.html`
+### 3c. Write `sounds.js`
 
-Follow `TEMPLATE.html` structure. Customize **only** these parts:
+Follow `TEMPLATE.js` structure. The module exports `{ meta, createSounds }`:
 
-| Section | What to change |
+| Section | What to fill in |
 |---|---|
-| `:root` CSS variables | Set all 9 color hex values |
-| `body::after` scanline | Optionally adjust density/opacity |
-| `<h1>` | Theme display name |
-| `<p>` subtitle | Short theme description |
-| `.meta` / `.desc` on buttons | Duration, frequency, oscillator type, concept phrase |
-| Toggle `.meta` | ON/OFF durations + concept |
-| Textarea `placeholder` | Mood-appropriate placeholder text |
-| 16 `sounds.*` functions | Full Web Audio synthesis implementations |
+| `meta.name` | Theme display name |
+| `meta.subtitle` | Short description |
+| `meta.colors` | All 9 color hex values (accent, accent2, danger, bg, surface, surface2, border, text, textDim) |
+| `meta.placeholder` | Mood-appropriate textarea placeholder text |
+| `meta.sounds` | Object with 16 entries, each having `{ label, meta, desc }` |
+| `createSounds()` body | 16 sound function implementations using Web Audio API |
 
-**Do NOT modify** these shared sections (copy verbatim from template):
-- Audio Engine (`initAudio`, `ensureCtx`, `noiseBuffer`, `flash`)
-- Play Dispatcher (`play`)
-- UI — Toggle Switches (`toggleSwitch`)
-- UI — Tab Bar (`addTab`, `closeTab`, `slashTab`)
-- UI — Keyboard Input (event listeners, `flashIndicator`)
+The `createSounds(ctx, noiseBuffer)` factory receives an `AudioContext` and
+`noiseBuffer(duration)` helper. It returns an object of 16 sound functions.
+
+### 3d. Write `index.html`
+
+Create a thin redirect file:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{Theme Name}} — Audio Theme</title>
+<script>location.replace('../demo.html?theme={{theme-name}}');</script>
+</head>
+<body></body>
+</html>
+```
+
+**Do NOT modify `demo.html`** — it handles all shared UI (audio engine, toggle
+switches, tab bar, keyboard input, sound grid rendering) automatically.
 
 ## Web Audio Synthesis Reference
 
@@ -349,17 +365,18 @@ Verify before finalizing:
 - [ ] JS light dividers: `// ---...---`
 - [ ] CSS dividers: `/* ── Name ──── */`
 - [ ] HTML dividers: `<!-- ═══...═══ -->`
-- [ ] No external files — all CSS and JS inline
+- [ ] Sound logic in `sounds.js` ES module — not inline
 
 ## Deliverables Checklist
 
 - [ ] Directory: `<theme-name>/`
 - [ ] Spec: `<theme-name>/<theme-name>.md` — all 16 sounds documented
-- [ ] Demo: `<theme-name>/index.html` — all 16 sounds synthesized
+- [ ] Module: `<theme-name>/sounds.js` — exports `{ meta, createSounds }`
+- [ ] Redirect: `<theme-name>/index.html` — thin redirect to `../demo.html?theme=<name>`
 - [ ] No `{{…}}` template tokens remaining
 - [ ] Color palette is cohesive with theme mood
 - [ ] Sound metaphors are consistent across the family
-- [ ] Shared UI code is unmodified from template
+- [ ] `demo.html` is unmodified — do not edit it
 - [ ] Push to `master` — landing page is auto-generated by GitHub Actions
 
 ## Error Recovery

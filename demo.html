@@ -3,37 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{THEME_NAME}} — Audio Theme</title>
+<title>Ghost Signal — Audio Theme</title>
 <style>
-  /*
-   * ══════════════════════════════════════════════════════════════
-   * TEMPLATE — Replace all {{…}} tokens with your theme values.
-   *
-   * CSS variables to customise:
-   *   --accent    Primary accent color (used for headings, active states)
-   *   --accent2   Secondary accent color (used for hover highlights, toggles)
-   *   --danger    Destructive action color (tab close hover)
-   *   --bg        Page background
-   *   --surface   Card / component background
-   *   --surface2  Elevated surface (hover state, nested panels)
-   *   --border    Border / separator color
-   *   --text      Primary text color
-   *   --text-dim  Secondary / muted text
-   * ══════════════════════════════════════════════════════════════
-   */
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --accent:   {{PRIMARY_HEX}};       /* e.g. #FCEE0A */
-    --accent2:  {{SECONDARY_HEX}};     /* e.g. #00F0FF */
-    --danger:   {{DANGER_HEX}};        /* e.g. #FF2D6B */
-    --bg:       {{BG_HEX}};            /* e.g. #0A0A0C */
-    --surface:  {{SURFACE_HEX}};       /* e.g. #111116 */
-    --surface2: {{SURFACE2_HEX}};      /* e.g. #1A1A22 */
-    --border:   {{BORDER_HEX}};        /* e.g. #2A2A35 */
-    --text:     {{TEXT_HEX}};           /* e.g. #E0E0E8 */
-    --text-dim: {{TEXT_DIM_HEX}};      /* e.g. #6A6A78 */
+    --accent:   #FCEE0A;
+    --accent2:  #00F0FF;
+    --danger:   #FF2D6B;
+    --bg:       #0A0A0C;
+    --surface:  #111116;
+    --surface2: #1A1A22;
+    --border:   #2A2A35;
+    --text:     #E0E0E8;
+    --text-dim: #6A6A78;
     --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
     --mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
   }
@@ -47,7 +30,7 @@
     overflow-x: hidden;
   }
 
-  /* ── Scanline overlay (optional — remove if not wanted) ─────── */
+  /* ── Scanline overlay ─────────────────────────────────────────── */
   body::after {
     content: '';
     position: fixed;
@@ -223,8 +206,8 @@
 
 <div class="container">
   <header>
-    <h1>{{THEME_NAME}}</h1>
-    <p>{{THEME_SUBTITLE}}</p>
+    <h1 id="themeName">Loading...</h1>
+    <p id="themeSubtitle"></p>
   </header>
 
   <div class="init-banner" id="initBanner" onclick="initAudio()">
@@ -236,44 +219,7 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <section>
     <h2>Browser Sounds</h2>
-    <div class="sound-grid">
-
-      <button class="sound-btn"
-              onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-        <div class="label">Hover</div>
-        <div class="meta">{{N}} ms / {{N}} Hz / {{osc type}}</div>
-        <div class="desc">{{Short concept phrase}}</div>
-      </button>
-
-      <button class="sound-btn"
-              onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-        <div class="label">Hover Up</div>
-        <div class="meta">{{N}} ms / {{N}} Hz / {{osc type}}</div>
-        <div class="desc">{{Short concept phrase}}</div>
-      </button>
-
-      <button class="sound-btn" onclick="play('CLICK')"
-              onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-        <div class="label">Click</div>
-        <div class="meta">{{N}} ms / {{N}} Hz / {{osc type}}</div>
-        <div class="desc">{{Short concept phrase}}</div>
-      </button>
-
-      <button class="sound-btn" onclick="play('IMPORTANT_CLICK')"
-              onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-        <div class="label">Important Click</div>
-        <div class="meta">{{N}} ms / {{N}} Hz / {{osc type}}</div>
-        <div class="desc">{{Short concept phrase}}</div>
-      </button>
-
-      <button class="sound-btn" onclick="play('TAB_SLASH')"
-              onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-        <div class="label">Tab Slash</div>
-        <div class="meta">{{N}} ms / {{N}} Hz / {{osc type}}</div>
-        <div class="desc">{{Short concept phrase}}</div>
-      </button>
-
-    </div>
+    <div class="sound-grid" id="soundGrid"></div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -281,33 +227,7 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <section>
     <h2>Toggle Sounds</h2>
-
-    <div class="toggle-row" onclick="toggleSwitch(this, 'FEATURE_SWITCH')"
-         onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-      <div class="toggle-track"></div>
-      <div class="toggle-info">
-        <div class="label">Feature Switch</div>
-        <div class="meta">ON {{N}} ms / OFF {{N}} ms &mdash; {{short concept}}</div>
-      </div>
-    </div>
-
-    <div class="toggle-row" onclick="toggleSwitch(this, 'LIMITER')"
-         onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-      <div class="toggle-track"></div>
-      <div class="toggle-info">
-        <div class="label">Limiter</div>
-        <div class="meta">ON {{N}} ms / OFF {{N}} ms &mdash; {{short concept}}</div>
-      </div>
-    </div>
-
-    <div class="toggle-row" onclick="toggleSwitch(this, 'SWITCH_TOGGLE')"
-         onmouseenter="play('HOVER')" onmouseleave="play('HOVER_UP')">
-      <div class="toggle-track"></div>
-      <div class="toggle-info">
-        <div class="label">Switch Toggle</div>
-        <div class="meta">{{N}} ms &mdash; {{short concept}}</div>
-      </div>
-    </div>
+    <div id="toggleList"></div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
@@ -331,7 +251,7 @@
     <h2>Keyboard Sounds</h2>
     <div class="keyboard-area">
       <label>Type here &mdash; each key triggers its sound</label>
-      <textarea id="typingArea" placeholder="{{Placeholder text matching your theme mood...}}"></textarea>
+      <textarea id="typingArea" placeholder=""></textarea>
       <div class="key-indicators">
         <div class="key-ind" id="indLetter">LETTER</div>
         <div class="key-ind" id="indSpace">SPACE</div>
@@ -344,25 +264,38 @@
 
 <div class="wave-flash" id="waveFlash"></div>
 
-<script>
+<script type="module">
 // ═══════════════════════════════════════════════════════════════════
-// AUDIO ENGINE (shared — no changes needed)
+// THEME LOADER — reads ?theme= param and imports the module
+// ═══════════════════════════════════════════════════════════════════
+
+const params = new URLSearchParams(location.search);
+const themeName = params.get('theme');
+
+if (!themeName) {
+  document.getElementById('themeName').textContent = 'No theme specified';
+  document.getElementById('themeSubtitle').textContent = 'Use ?theme=<name> to load a theme';
+}
+
+let theme = null;
+
+if (themeName) {
+  try {
+    const mod = await import(`./${themeName}/sounds.js`);
+    theme = mod.default;
+  } catch (e) {
+    document.getElementById('themeName').textContent = 'Theme not found';
+    document.getElementById('themeSubtitle').textContent = `Could not load "${themeName}/sounds.js"`;
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════════
+// AUDIO ENGINE
 // ═══════════════════════════════════════════════════════════════════
 
 let ctx = null;
-
-function initAudio() {
-  if (ctx) return;
-  ctx = new (window.AudioContext || window.webkitAudioContext)();
-  document.getElementById('initBanner').classList.add('ready');
-  document.getElementById('initBanner').textContent = 'AudioContext ready';
-  flash('AudioContext initialised');
-}
-
-function ensureCtx() {
-  if (!ctx) initAudio();
-  if (ctx.state === 'suspended') ctx.resume();
-}
+let sounds = {};
 
 function noiseBuffer(duration = 0.1) {
   const len = ctx.sampleRate * duration;
@@ -370,6 +303,22 @@ function noiseBuffer(duration = 0.1) {
   const data = buf.getChannelData(0);
   for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
   return buf;
+}
+
+window.initAudio = function() {
+  if (ctx) return;
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (theme) {
+    sounds = theme.createSounds(ctx, noiseBuffer);
+  }
+  document.getElementById('initBanner').classList.add('ready');
+  document.getElementById('initBanner').textContent = 'AudioContext ready';
+  flash('AudioContext initialised');
+};
+
+function ensureCtx() {
+  if (!ctx) window.initAudio();
+  if (ctx.state === 'suspended') ctx.resume();
 }
 
 function flash(text) {
@@ -380,174 +329,33 @@ function flash(text) {
   el._t = setTimeout(() => el.classList.remove('show'), 800);
 }
 
-
-// ═══════════════════════════════════════════════════════════════════
-// SOUND DEFINITIONS — Replace each function body with your synthesis
-// ═══════════════════════════════════════════════════════════════════
-
-const sounds = {};
-
-// ---------------------------------------------------------------
-// 1. HOVER
-// ---------------------------------------------------------------
-sounds.HOVER = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your HOVER synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 2. HOVER_UP
-// ---------------------------------------------------------------
-sounds.HOVER_UP = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your HOVER_UP synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 3. CLICK
-// ---------------------------------------------------------------
-sounds.CLICK = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your CLICK synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 4. IMPORTANT_CLICK
-// ---------------------------------------------------------------
-sounds.IMPORTANT_CLICK = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your IMPORTANT_CLICK synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 5. FEATURE_SWITCH_ON
-// ---------------------------------------------------------------
-sounds.FEATURE_SWITCH_ON = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your FEATURE_SWITCH_ON synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 6. FEATURE_SWITCH_OFF
-// ---------------------------------------------------------------
-sounds.FEATURE_SWITCH_OFF = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your FEATURE_SWITCH_OFF synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 7. LIMITER_ON
-// ---------------------------------------------------------------
-sounds.LIMITER_ON = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your LIMITER_ON synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 8. LIMITER_OFF
-// ---------------------------------------------------------------
-sounds.LIMITER_OFF = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your LIMITER_OFF synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 9. SWITCH_TOGGLE
-// ---------------------------------------------------------------
-sounds.SWITCH_TOGGLE = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your SWITCH_TOGGLE synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 10. TAB_INSERT
-// ---------------------------------------------------------------
-sounds.TAB_INSERT = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TAB_INSERT synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 11. TAB_CLOSE
-// ---------------------------------------------------------------
-sounds.TAB_CLOSE = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TAB_CLOSE synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 12. TAB_SLASH
-// ---------------------------------------------------------------
-sounds.TAB_SLASH = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TAB_SLASH synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 13. TYPING_LETTER ({{N}} variants)
-// ---------------------------------------------------------------
-sounds.TYPING_LETTER = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TYPING_LETTER synthesis spec}}
-  // Randomise body frequency per call for variant feel
-};
-
-// ---------------------------------------------------------------
-// 14. TYPING_BACKSPACE
-// ---------------------------------------------------------------
-sounds.TYPING_BACKSPACE = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TYPING_BACKSPACE synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 15. TYPING_ENTER
-// ---------------------------------------------------------------
-sounds.TYPING_ENTER = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TYPING_ENTER synthesis spec}}
-};
-
-// ---------------------------------------------------------------
-// 16. TYPING_SPACE
-// ---------------------------------------------------------------
-sounds.TYPING_SPACE = function() {
-  const now = ctx.currentTime;
-  // {{IMPLEMENT: follow your TYPING_SPACE synthesis spec}}
-};
-
-
-// ═══════════════════════════════════════════════════════════════════
-// PLAY DISPATCHER (shared — no changes needed)
-// ═══════════════════════════════════════════════════════════════════
-
-function play(id) {
+window.play = function(id) {
   ensureCtx();
   if (sounds[id]) { sounds[id](); flash(id); }
-}
+};
 
 
 // ═══════════════════════════════════════════════════════════════════
-// UI — Toggle Switches (shared — no changes needed)
+// UI — Toggle Switches
 // ═══════════════════════════════════════════════════════════════════
 
-function toggleSwitch(el, type) {
+window.toggleSwitch = function(el, type) {
   const isOn = el.classList.toggle('on');
   if (type === 'SWITCH_TOGGLE') {
     play('SWITCH_TOGGLE');
   } else {
     play(isOn ? type + '_ON' : type + '_OFF');
   }
-}
+};
 
 
 // ═══════════════════════════════════════════════════════════════════
-// UI — Tab Bar (shared — no changes needed)
+// UI — Tab Bar
 // ═══════════════════════════════════════════════════════════════════
 
 let tabCounter = 0;
 
-function addTab() {
+window.addTab = function() {
   tabCounter++;
   play('TAB_INSERT');
   const strip = document.getElementById('tabStrip');
@@ -555,9 +363,9 @@ function addTab() {
   tab.className = 'tab-item';
   tab.innerHTML = `<span>Tab ${tabCounter}</span><button class="tab-close" onclick="closeTab(event, this)">&times;</button>`;
   strip.appendChild(tab);
-}
+};
 
-function closeTab(e, btn) {
+window.closeTab = function(e, btn) {
   e.stopPropagation();
   play('TAB_CLOSE');
   const tab = btn.parentElement;
@@ -565,13 +373,13 @@ function closeTab(e, btn) {
   tab.style.transform = 'scale(0.9)';
   tab.style.transition = 'all 0.12s';
   setTimeout(() => tab.remove(), 120);
-}
+};
 
-function slashTab() { play('TAB_SLASH'); }
+window.slashTab = function() { play('TAB_SLASH'); };
 
 
 // ═══════════════════════════════════════════════════════════════════
-// UI — Keyboard Input (shared — no changes needed)
+// UI — Keyboard Input
 // ═══════════════════════════════════════════════════════════════════
 
 const typingArea = document.getElementById('typingArea');
@@ -605,6 +413,75 @@ document.addEventListener('keydown', (e) => {
     typingArea.focus();
   }
 });
+
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER THEME — apply meta to page
+// ═══════════════════════════════════════════════════════════════════
+
+if (theme) {
+  const meta = theme.meta;
+
+  // Title
+  document.title = `${meta.name} — Audio Theme`;
+  document.getElementById('themeName').textContent = meta.name;
+  document.getElementById('themeSubtitle').textContent = meta.subtitle;
+
+  // Colors
+  const root = document.documentElement.style;
+  root.setProperty('--accent',   meta.colors.accent);
+  root.setProperty('--accent2',  meta.colors.accent2);
+  root.setProperty('--danger',   meta.colors.danger);
+  root.setProperty('--bg',       meta.colors.bg);
+  root.setProperty('--surface',  meta.colors.surface);
+  root.setProperty('--surface2', meta.colors.surface2);
+  root.setProperty('--border',   meta.colors.border);
+  root.setProperty('--text',     meta.colors.text);
+  root.setProperty('--text-dim', meta.colors.textDim);
+
+  // Placeholder
+  typingArea.placeholder = meta.placeholder || '';
+
+  // Browser sound buttons
+  const grid = document.getElementById('soundGrid');
+  const browserBtns = [
+    { id: 'HOVER',           onclick: null },
+    { id: 'HOVER_UP',        onclick: null },
+    { id: 'CLICK',           onclick: 'CLICK' },
+    { id: 'IMPORTANT_CLICK', onclick: 'IMPORTANT_CLICK' },
+    { id: 'TAB_SLASH',       onclick: 'TAB_SLASH' },
+  ];
+  browserBtns.forEach((btn) => {
+    const info = meta.sounds[btn.id];
+    if (!info) return;
+    const el = document.createElement('button');
+    el.className = 'sound-btn';
+    el.setAttribute('onmouseenter', "play('HOVER')");
+    el.setAttribute('onmouseleave', "play('HOVER_UP')");
+    if (btn.onclick) el.setAttribute('onclick', `play('${btn.onclick}')`);
+    el.innerHTML = `<div class="label">${info.label}</div><div class="meta">${info.meta}</div><div class="desc">${info.desc}</div>`;
+    grid.appendChild(el);
+  });
+
+  // Toggle switches
+  const toggleList = document.getElementById('toggleList');
+  const toggles = [
+    { type: 'FEATURE_SWITCH', id: 'FEATURE_SWITCH_ON' },
+    { type: 'LIMITER',        id: 'LIMITER_ON' },
+    { type: 'SWITCH_TOGGLE',  id: 'SWITCH_TOGGLE' },
+  ];
+  toggles.forEach((tog) => {
+    const info = meta.sounds[tog.id];
+    if (!info) return;
+    const el = document.createElement('div');
+    el.className = 'toggle-row';
+    el.setAttribute('onclick', `toggleSwitch(this, '${tog.type}')`);
+    el.setAttribute('onmouseenter', "play('HOVER')");
+    el.setAttribute('onmouseleave', "play('HOVER_UP')");
+    el.innerHTML = `<div class="toggle-track"></div><div class="toggle-info"><div class="label">${info.label}</div><div class="meta">${info.meta}</div></div>`;
+    toggleList.appendChild(el);
+  });
+}
 </script>
 </body>
 </html>
