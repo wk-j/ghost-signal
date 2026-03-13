@@ -136,22 +136,47 @@ Use kebab-case for the directory: `chill-city-fm`, `ghost-signal`, `neon-arcade`
 ### Cover Image Generation
 
 Every theme needs a `cover.png` — a visual identity image that captures the
-theme's mood, atmosphere, and color palette. Generate it using an image
-generation tool after the theme identity and color palette have been derived.
+theme's mood, atmosphere, and color palette. Generate it using **NotebookLM
+infographic generation** after the theme identity and color palette have been
+derived.
 
-**Prompt construction guidelines:**
+**Method — NotebookLM infographic pipeline:**
+
+1. **Create a notebook**: `notebook_create` with title `"<Theme Name> Cover Art"`
+2. **Add a text source**: `source_add` with `source_type="text"` containing a
+   vivid description of the desired cover image (see prompt guidelines below).
+   Set `wait=true` to ensure the source is processed before generating.
+3. **Generate infographic**: `studio_create` with `artifact_type="infographic"`,
+   `orientation="landscape"`, `detail_level="detailed"`. Include a `focus_prompt`
+   describing the visual scene. Set `confirm=true`.
+4. **Poll for completion**: `studio_status` until the artifact status is
+   `"completed"` (typically 60-90 seconds).
+5. **Download**: `download_artifact` with `artifact_type="infographic"` and
+   `output_path="<theme-name>/cover.png"`.
+6. **Cleanup** (optional): `notebook_delete` the temporary notebook with
+   `confirm=true`.
+
+**Text source content guidelines:**
+
+Write a rich visual description (150-300 words) covering:
 
 1. **Subject** — A scene or composition that embodies the theme's mood and setting
    (e.g. "rain-slick neon alley at night" for a cyberpunk theme, "high-altitude
    space gantry above cloud layer" for a space theme)
 2. **Materials & textures** — Reference the dominant materials from the Material
    Palette analysis (metal, wood, glass, fabric, etc.)
-3. **Color direction** — Specify the accent colors and overall palette derived in
-   step D (Color Palette → CSS Variables)
+3. **Color direction** — Specify the accent colors with hex values and overall
+   palette derived in step D (Color Palette → CSS Variables)
 4. **Atmosphere** — Match the lighting and atmosphere from step E
 5. **Style** — Painterly, cinematic, or illustrative — avoid photorealism and
    text/lettering
 6. **Aspect ratio** — Landscape (16:9 or similar)
+
+**Focus prompt example:**
+> Create a cinematic cover art image: a lone coder silhouetted against a massive
+> holographic code display floating in deep space. Cyan and green glowing text,
+> midnight navy void with distant stars. Painterly, atmospheric, no text or
+> lettering. Wide landscape.
 
 Save the generated image as `<theme-name>/cover.png`. The concept file
 (`<theme-name>.md`) references it via `![Theme Name cover](cover.png)`.
@@ -257,9 +282,14 @@ The `createSounds(ctx, noiseBuffer)` factory receives an `AudioContext` and
 
 ### 3d. Generate `cover.png`
 
-Generate a cover image using an image generation tool. Use the theme's mood,
-setting, materials, and color palette to construct the prompt (see Cover Image
-Generation above). Save as `<theme-name>/cover.png`.
+Generate a cover image via NotebookLM (see Cover Image Generation above):
+
+1. `notebook_create` — temporary notebook for cover generation
+2. `source_add` — text source with vivid visual description of the scene
+3. `studio_create` — infographic, landscape orientation, detailed, with focus prompt
+4. `studio_status` — poll until completed
+5. `download_artifact` — save as `<theme-name>/cover.png`
+6. `notebook_delete` — clean up the temporary notebook (optional)
 
 ### 3e. Write `index.html`
 

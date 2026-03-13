@@ -12,6 +12,7 @@ sounds, loaded by a shared demo page.
 | [Orbit Deck](orbit-deck/orbit-deck.md) | Near-future EVA — spacesuit seals, visor HUD, radio comms |
 | [Mach Line](mach-line/mach-line.md) | Cold supersonic — stealth aircraft, carbon-fiber, radar pings |
 | [Chill City FM](chill-city-fm/chill-city-fm.md) | Warm lo-fi retro — CRT, VHS, boombox, wood paneling |
+| [Deep Glyph](deep-glyph/deep-glyph.md) | Midnight-code trance — holographic glyphs, starfield void, keyboard glow |
 
 ## Try It
 
