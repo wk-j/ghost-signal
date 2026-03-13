@@ -2,6 +2,8 @@
 
 > A cyberpunk-noir sound palette built entirely from Web Audio API synthesis. Every sound evokes chrome, neon, and rain — short, punchy, and hyper-tactile, designed to make a browser feel like a hacked neural-deck interface in Night City.
 
+![Ghost Signal cover](cover.png)
+
 ---
 
 ## Theme Identity

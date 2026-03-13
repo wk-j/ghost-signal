@@ -2,6 +2,8 @@
 
 > A cold supersonic sound palette inspired by stealth aircraft and matte-black hypercars on wet tarmac — turbine whine, carbon-fiber taps, radar pings, and the compressed hush before a sonic boom, designed to make a browser feel like a classified weapons-system HUD.
 
+![Mach Line cover](cover.png)
+
 ---
 
 ## Theme Identity

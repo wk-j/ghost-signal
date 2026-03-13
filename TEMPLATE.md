@@ -2,6 +2,8 @@
 
 > {{THEME_DESCRIPTION — one sentence that captures the mood, material, and feeling of the entire sound palette.}}
 
+![{{THEME_NAME}} cover](cover.png)
+
 ---
 
 ## Theme Identity

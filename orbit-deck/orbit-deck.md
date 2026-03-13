@@ -2,6 +2,8 @@
 
 > A serene near-future sound palette inspired by standing on a high-altitude gantry at the edge of space — pressurized suit seals, visor HUD pings, radio static, and the vast atmospheric hiss of clouds far below, designed to make a browser feel like a quiet EVA control interface above the stratosphere.
 
+![Orbit Deck cover](cover.png)
+
 ---
 
 ## Theme Identity

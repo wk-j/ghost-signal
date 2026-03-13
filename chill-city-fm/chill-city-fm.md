@@ -2,6 +2,8 @@
 
 > A warm lo-fi analog sound palette that channels late-night 1980s living rooms — VHS static, FM radio hiss, wood-cabinet resonance, and the soft mechanical clunks of vintage electronics, designed to make a browser feel like a cozy retro den bathed in amber lamplight.
 
+![Chill City FM cover](cover.png)
+
 ---
 
 ## Theme Identity
