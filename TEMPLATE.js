@@ -33,6 +33,7 @@ const meta = {
     TYPING_BACKSPACE: { label: 'Typing Backspace', meta: '{{duration / waveform}}',       desc: '{{concept}}' },
     TYPING_ENTER:     { label: 'Typing Enter',    meta: '{{duration / pattern}}',         desc: '{{concept}}' },
     TYPING_SPACE:     { label: 'Typing Space',    meta: '{{duration / pattern}}',         desc: '{{concept}}' },
+    APP_START:        { label: 'App Start',       meta: '{{duration / pattern}}',         desc: '{{concept}}' },
   },
 };
 
@@ -165,6 +166,14 @@ function createSounds(ctx, noiseBuffer) {
   sounds.TYPING_SPACE = function() {
     const now = ctx.currentTime;
     // {{IMPLEMENT: typing space sound}}
+  };
+
+  // ---------------------------------------------------------------
+  // 17. APP_START — {{description}}, {{duration}}
+  // ---------------------------------------------------------------
+  sounds.APP_START = function() {
+    const now = ctx.currentTime;
+    // {{IMPLEMENT: app start sound}}
   };
 
   return sounds;

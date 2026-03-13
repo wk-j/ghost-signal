@@ -54,7 +54,7 @@ click "Click to initialise AudioContext", and test all 16 sounds interactively.
    <body></body>
    </html>
    ```
-5. Every theme **must define exactly 16 sounds** (12 browser + 4 keyboard)
+5. Every theme **must define exactly 17 sounds** (12 browser + 1 application + 4 keyboard)
 6. All synthesis uses **Web Audio API only** — no sample files
 
 ### sounds.js Module Contract
@@ -74,7 +74,7 @@ export default { meta, createSounds };
   - `sounds` — object keyed by sound ID, each with `{ label, meta, desc }`
 
 - **`createSounds(ctx, noiseBuffer)`** — factory function receiving an `AudioContext`
-  and a `noiseBuffer(duration)` helper. Returns an object of 16 sound functions.
+  and a `noiseBuffer(duration)` helper. Returns an object of 17 sound functions.
 
 ### Required Sound IDs
 
@@ -86,8 +86,9 @@ export default { meta, createSounds };
 | 7–8 | `LIMITER_ON`, `LIMITER_OFF` | Browser |
 | 9 | `SWITCH_TOGGLE` | Browser |
 | 10–12 | `TAB_INSERT`, `TAB_CLOSE`, `TAB_SLASH` | Browser |
-| 13 | `TYPING_LETTER` (10–20 variants) | Keyboard |
-| 14–16 | `TYPING_BACKSPACE`, `TYPING_ENTER`, `TYPING_SPACE` | Keyboard |
+| 13 | `APP_START` | Application |
+| 14 | `TYPING_LETTER` (10–20 variants) | Keyboard |
+| 15–17 | `TYPING_BACKSPACE`, `TYPING_ENTER`, `TYPING_SPACE` | Keyboard |
 
 ## Code Style
 

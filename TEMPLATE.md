@@ -240,3 +240,19 @@
 **Concept** — {{The space bar. Should feel broader and hollower than a letter key — wider contact surface, more diffuse sound.}}
 
 **Synthesis** — {{Exact Web Audio recipe: typically a wide band-pass noise puff (low Q for diffusion) plus a subtle pitched undertone, highs rolled off.}}
+
+---
+
+## Application Sounds
+
+### 17. APP_START
+
+| | |
+|---|---|
+| **Duration** | {{N}} ms |
+| **Base Freq** | {{N}} Hz |
+| **Variants** | 1 |
+
+**Concept** — {{Application awakening. Should feel mysterious and calm — a presence stirring from silence rather than a bright chime. Slow-evolving, low-frequency tones with gentle filter sweeps, dissonant or open intervals, and long tails that dissolve into quiet. The feeling: something unknown is now aware.}}
+
+**Synthesis** — {{Exact Web Audio recipe: typically a low sine or triangle drone (100-200 Hz) with a slow low-pass filter sweep (opening then closing), joined by a second tone at a dissonant or open interval (minor second, minor third, perfect fifth). Add a slow LFO (1-3 Hz) for breathing modulation. Layer low-passed noise for texture. Optional sub-bass (40-60 Hz) for physical grounding. Total duration 1-1.5 s with long exponential decays.}}

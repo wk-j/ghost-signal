@@ -241,3 +241,19 @@
 **Concept** — The wide space bar of a vintage keyboard — broader and hollower than a letter key, like tapping the top of a wooden cigar box. Warm and diffuse.
 
 **Synthesis** — Filtered noise 'puff' (band-pass 1 kHz, Q = 1.5 for wide diffusion, 22 ms) for the broad impact. Add a triangle undertone at 280 Hz (18 ms, gain -12 dB) through low-pass at 2 kHz. Roll off highs above 3.5 kHz aggressively for a muffled, woody quality. Feel: broad, hollow, warm — the biggest key with the softest voice.
+
+---
+
+## Application Sounds
+
+### 17. APP_START
+
+| | |
+|---|---|
+| **Duration** | 1300 ms |
+| **Base Freq** | 196 Hz |
+| **Variants** | 1 |
+
+**Concept** — Late-night signal fading in — like tuning an old radio dial at 2 AM and catching a distant station you've never heard before. A warm triangle-wave drone emerges from tape hiss, its filter slowly opening to reveal a rich interior, joined by a minor third that adds melancholy and mystery. A slow LFO adds tape-warble character. Enveloping tape hiss and a 60 Hz mains hum anchor everything in the physical warmth of vintage electronics. The feeling: discovering something secret and beautiful in the static.
+
+**Synthesis** — Primary drone: triangle at 196 Hz, low-pass sweeping 300 → 1200 Hz over 600 ms then closing to 250 Hz by 1.3 s (Q 3), gain fading in over 400 ms to 0.14. Minor third: sine at 233 Hz enters at 350 ms, through low-pass 600 Hz (Q 2), peaks at gain 0.08 around 650 ms. LFO: sine at 3 Hz modulates drone frequency by 3 Hz for tape warble. Tape hiss: band-pass 1 kHz (Q 0.8) through low-pass 3 kHz, slow swell to gain 0.04 over 400 ms, decays over 1.2 s. Mains hum: sine at 60 Hz, fades in over 300 ms to gain 0.05, decays over 900 ms.

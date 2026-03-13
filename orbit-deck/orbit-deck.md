@@ -241,3 +241,19 @@
 **Concept** — The wide space bar on the forearm panel — a broader, more diffuse press with a hollow quality, like tapping on the pressurized suit casing itself.
 
 **Synthesis** — Filtered noise puff (band-pass 1.2 kHz, Q = 1 for wide diffusion, 18 ms) for the broad impact. Sine undertone at 350 Hz (15 ms, gain -14 dB) through low-pass at 2 kHz. Roll off everything above 4 kHz. Feel: wide, hollow, muffled by the suit.
+
+---
+
+## Application Sounds
+
+### 17. APP_START
+
+| | |
+|---|---|
+| **Duration** | 1400 ms |
+| **Base Freq** | 110 Hz |
+| **Variants** | 1 |
+
+**Concept** — Orbital silence awakening — the vast quiet of near-space broken only by a deep tone rising from the station's hull. Like hearing your own heartbeat through the suit helmet, a low drone emerges and slowly opens, joined by a distant octave shimmer that drifts in from the void. A gentle LFO breathes through the drone. Thin atmospheric noise and structural sub-bass fill the immense silence. The feeling: floating alone above the clouds, something ancient and serene stirring to life.
+
+**Synthesis** — Primary drone: sine at 110 Hz, low-pass sweeping 200 → 700 Hz over 700 ms then closing to 150 Hz by 1.4 s (Q 2), gain fading in over 500 ms to 0.16. Octave shimmer: sine at 220 Hz enters at 500 ms, through low-pass 500 Hz (Q 1.5), peaks at gain 0.06 around 900 ms. LFO: sine at 1.5 Hz modulates drone gain by 0.03. Atmospheric noise: band-pass 2 kHz (Q 1) through low-pass 3 kHz, slow swell to gain 0.025 over 600 ms, decays over 1.3 s. Sub: sine at 55 Hz, fades in over 400 ms to 0.08, decays over 1.0 s.

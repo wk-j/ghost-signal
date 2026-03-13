@@ -240,3 +240,19 @@
 **Concept** — Pressure release — a broad, diffuse puff like a micro-burst of compressed air from a canopy seal. Wider and hollower than a letter key.
 
 **Synthesis** — Noise: bandpass 1200 Hz (Q 1.5), through lowpass 4000 Hz, gain 0.18 → 0.001 exponential in 18 ms. Undertone: triangle at 300 Hz, gain 0.08 → 0.001 exponential in 13 ms. Both stop at 28 ms.
+
+---
+
+## Application Sounds
+
+### 17. APP_START
+
+| | |
+|---|---|
+| **Duration** | 1300 ms |
+| **Base Freq** | 140 Hz |
+| **Variants** | 1 |
+
+**Concept** — Stealth signal emerging — a classified system waking from dormancy. A low drone materialises from nothing, its resonant filter slowly opening to reveal the tone's inner shape, then closing again. A dissonant minor second enters late — cold, tense, like two frequencies that shouldn't exist together but do. Dark wind noise and a deep sub-bass barely felt in the chest. The feeling: something powerful is now watching.
+
+**Synthesis** — Primary drone: sine at 140 Hz, low-pass sweeping 200 → 800 Hz over 700 ms then closing to 180 Hz by 1.3 s (Q 6), gain fading in over 400 ms to 0.16. Minor second: sine at 148 Hz enters at 400 ms, through low-pass 400 Hz (Q 3), peaks at gain 0.07 around 700 ms. Sub: sine at 45 Hz, fades in over 350 ms to 0.10, decays over 900 ms. Dark noise: band-pass 800 Hz (Q 2) through low-pass 1000 Hz, slow swell to gain 0.03 over 500 ms, decays over 1.2 s.

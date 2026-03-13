@@ -239,3 +239,19 @@
 **Concept** — The space-bar — the widest key, producing a broader, more hollow sound than a letter key.
 
 **Synthesis** — A filtered noise 'puff' (band-pass centred at 1.5 kHz, Q = 2 for width, 20 ms) — wider and more diffuse than TYPING_LETTER's tight tap. Add a subtle pitched undertone (triangle wave, 350 Hz, 15 ms, gain -14 dB) for the bar's resonant cavity. Roll off highs above 5 kHz to keep it mellow. Feel: a soft, broad thump — like tapping a padded surface.
+
+---
+
+## Application Sounds
+
+### 17. APP_START
+
+| | |
+|---|---|
+| **Duration** | 1200 ms |
+| **Base Freq** | 165 Hz |
+| **Variants** | 1 |
+
+**Concept** — Ghost frequency awakening — something stirs in the dark network. A deep drone emerges from silence, its filter slowly opening like an eye, joined after a beat by a perfect fifth that floats above like a signal from an unknown source. A slow tremolo breathes life into the tone. Dark, low-passed noise and deep sub-bass fill the space below. The feeling: waking up inside a machine that already knows you're there.
+
+**Synthesis** — Primary drone: sine at 165 Hz, low-pass filter sweeping 300 → 900 Hz over 600 ms then closing to 200 Hz by 1.2 s (Q 4), gain fading in over 350 ms to 0.18, holding, then decaying. Perfect fifth: sine at 248 Hz enters at 300 ms, through low-pass 600 Hz (Q 2), peaks at gain 0.10 around 600 ms, decays to 1.2 s. LFO: sine at 2.5 Hz modulates drone gain by 0.04 for tremolo. Noise: low-passed at 1200 Hz, slow swell to gain 0.04 over 500 ms, decays over 1.1 s. Sub: sine at 55 Hz, fades in over 300 ms to 0.10, decays over 800 ms.
