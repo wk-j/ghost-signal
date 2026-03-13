@@ -16,6 +16,18 @@
 
 ---
 
+## Sonic DNA
+
+| Technique | Description |
+|---|---|
+| **Primary waveform** | Pure sine, single oscillator — clinical, sterile, clean. No harmonics unless deliberately layered. |
+| **Signature effect** | Feedback delay tails — sounds arrive from distance and dissolve into void. Every sound routes through at least one delay node with feedback gain loop. |
+| **Transient character** | Soft fade-in, no click — no sharp onsets, everything materializes gently via linear ramps > 3ms |
+| **Envelope philosophy** | Long tails dissolving into void — generous release times, sounds linger and decay slowly |
+| **Frequency world** | Clean, LP-filtered, sterile — everything below 4 kHz, no harshness, lowpass on every chain |
+
+---
+
 ## Browser Sounds
 
 ### 1. HOVER
@@ -28,7 +40,7 @@
 
 **Concept** — A faint radio proximity ping on the visor HUD — the softest acknowledgement that a system element is within reach. Like a ghost signal from a distant relay.
 
-**Synthesis** — Pure sine sweep (2.2 kHz to 2.8 kHz, ~65 ms) through a gentle low-pass (cutoff 4 kHz, Q = 1.5) for that clean, filtered-through-a-helmet quality. Gain envelope: attack 6 ms, release 59 ms with exponential decay. Layer a whisper of filtered noise (high-pass 3 kHz, gain -28 dB, 40 ms) for atmospheric static texture.
+**Synthesis** — Doppler-style sine sweep: frequency rises from 1.8 kHz to 2.6 kHz over 60 ms (approach), then settles to 2.2 kHz by 90 ms (pass-by). LP-filtered at 3.8 kHz (Q 1.0) for sterile, helmet-heard quality. Soft fade-in via linear ramp to gain 0.09 over 8 ms, exponential decay to silence by 70 ms — no click onset. Feedback delay loop (45 ms delay time, feedback gain 0.35) creates 2–3 fading echoes dissolving into void, mixed through a separate wet gain at 0.06. Dry signal and delay tails sum at destination.
 
 ---
 
@@ -42,7 +54,7 @@
 
 **Concept** — The HUD element deselecting — a descending fade, like a radio signal drifting out of range as you look away.
 
-**Synthesis** — Sine sweep (2.8 kHz to 1.8 kHz, ~50 ms) through low-pass (cutoff 3.5 kHz, Q = 1.5). Gain envelope: attack 4 ms, exponential release 46 ms. Clean, no noise layer — the silence returns.
+**Synthesis** — Reverse Doppler: sine descends from 2.6 kHz to 1.6 kHz over 70 ms (receding). LP-filtered at 3.5 kHz (Q 0.8). Soft fade-in via linear ramp to 0.08 over 6 ms, exponential decay by 60 ms. Feedback delay with expanding delay time (35 ms stretching to 80 ms over 80 ms) and feedback gain 0.4 — echoes stretch further apart as the signal recedes. Wet path additionally LP-filtered at 2.8 kHz, keeping tails darker than the source. Long dissolving tail characteristic of the theme's void aesthetic.
 
 ---
 
@@ -56,7 +68,7 @@
 
 **Concept** — Pressing a glove-friendly tactile button on the suit forearm panel — a precise, pressurized 'click' transmitted through the suit's internal speakers.
 
-**Synthesis** — Two layers: (a) Sine pop at 800 Hz (2 ms pulse, immediate exponential decay) for the clean electronic contact, (b) tiny noise burst (band-pass 3-5 kHz, Q = 4, 12 ms decay) for the tactile texture of a sealed switch. Apply low-pass at 5 kHz. No room reverb — sound travels through the suit, not air.
+**Synthesis** — Pure sine impulse at 800 Hz through LP at 3 kHz (Q 0.7). Soft fade-in over 3 ms to gain 0.06, exponential decay by 12 ms — the source is barely a blip. Cascaded dual-delay chain: delay 1 (22 ms, feedback 0.45) feeds into delay 2 (18 ms, feedback 0.3), creating 3–4 staggered echoes at different rhythmic intervals. Wet mix at 0.18 is notably louder than the dry source, making the echoes the primary sound — the click arrives from distance, heard through reflections rather than directly.
 
 ---
 
@@ -70,7 +82,7 @@
 
 **Concept** — Engaging a critical airlock control — the heavy electromagnetic clunk of a safety-rated mechanism confirming a command. Two-tone confirmation: low thud + high acknowledgement ping.
 
-**Synthesis** — (a) Low thud: sine at 440 Hz (attack 2 ms, sustain 40 ms, release 80 ms) through resonant low-pass (cutoff 700 Hz, Q = 6) for metallic hull resonance. (b) Confirmation ping: sine at 1760 Hz (onset at 15 ms, duration 40 ms, gain -8 dB) — a clean octave harmonic. (c) Sub-bass: sine 55 Hz (50 ms, gain -10 dB) for the mechanical weight of the locking mechanism.
+**Synthesis** — Two pure sines: (a) body at 440 Hz through LP at 1.2 kHz (Q 2.0), soft fade-in over 5 ms to 0.18, sustained at 0.18 for 40 ms, then exponential decay by 150 ms. (b) Sympathetic harmonic at 880 Hz, entering 30 ms later — fades in over 8 ms to 0.08, decays by 120 ms. Both dry signals route to destination and also feed a shared feedback delay (55 ms delay time, feedback 0.38). Wet path LP-filtered at 2 kHz, mixed at 0.10 — the delay creates a reverb-like wash where body and harmonic echoes interleave. Long dissolving tail over 200 ms total.
 
 ---
 
@@ -84,7 +96,7 @@
 
 **Concept** — A suit subsystem powering on — oxygen flow starting, visor display illuminating. An ascending electronic hum with a pressurization hiss, like life arriving.
 
-**Synthesis** — Stage 1 (0-25 ms): sharp noise click (band-pass 4 kHz, Q = 3, 20 ms) for the relay activation. Stage 2 (25-280 ms): ascending sine + triangle (220 Hz to 660 Hz) through opening low-pass (cutoff 500 to 4000 Hz, Q = 2). Layer a pressurization hiss (noise, high-pass 2 kHz, gain ramps from -30 dB to -14 dB over 200 ms, then fades). Release: 80 ms exponential. Add faint 120 Hz hum (sine, gain -18 dB, 200 ms) for the power supply.
+**Synthesis** — Pure sine ascending from 220 Hz to 660 Hz (exponential ramp over 250 ms) through LP sweeping open from 600 Hz to 3.2 kHz (Q 1.5). Soft fade-in over 20 ms to 0.14, sustained until 200 ms, exponential decay by 300 ms. Feedback delay with contracting delay time (80 ms shortening to 25 ms) and rising feedback gain (0.15 to 0.55) — echoes compress and intensify as the system powers up, creating an accelerating pulse effect. Wet gain swells from 0.03 to 0.12 over 250 ms, then decays. The delay tails dissolve into void by 300 ms.
 
 ---
 
@@ -98,7 +110,7 @@
 
 **Concept** — The subsystem powering down — display dimming, a descending whine as the system drains, and a final depressurization sigh.
 
-**Synthesis** — Descending sine + triangle (660 Hz to 160 Hz) through closing low-pass (cutoff 4000 to 400 Hz) over 230 ms. Layer a depressurization hiss (noise, band-pass 1.5-4 kHz, gain -14 dB fading to -30 dB over 200 ms). End with a faint low sine (80 Hz, 60 ms, gain -16 dB) for capacitor drain. Release: 40 ms.
+**Synthesis** — Pure sine descending from 660 Hz to 180 Hz (exponential ramp over 220 ms) through LP closing from 3.2 kHz to 500 Hz (Q 1.5). Gain starts at 0.14, exponential decay over 270 ms — no fade-in, immediate presence that drains away. Feedback delay with expanding delay time (25 ms stretching to 100 ms) and falling feedback gain (0.50 to 0.20) — echoes slow down and weaken as the system powers down. Wet path additionally LP-filtered at 1.8 kHz, keeping trailing echoes darker and more distant. Tails dissolve into void by 270 ms.
 
 ---
 
@@ -112,7 +124,7 @@
 
 **Concept** — A helmet visor seal engaging — the faceplate locking into place with a pressurized hiss and a constrained, sealed quality. Air tightening.
 
-**Synthesis** — Short noise burst (band-pass 3.5 kHz, Q = 5, 15 ms) for the latch click. Ascending sine (300 Hz to 480 Hz) through a very resonant low-pass (Q = 12, cutoff 400 to 1200 Hz) for the 'sealed' narrow quality. Layer pressurization noise (high-pass 2.5 kHz, gain ramp from -26 dB to -16 dB over 150 ms, then cut). Overall gain envelope: attack 10 ms, sustain 160 ms, release 60 ms.
+**Synthesis** — Pure sine ascending from 300 Hz to 480 Hz (exponential ramp over 180 ms) through LP at 2.4 kHz (Q 3.0) for a narrow, sealed quality. Soft fade-in over 15 ms to 0.12, sustained at 0.12 until 160 ms, exponential decay by 230 ms. Dual comb filter resonance: two parallel feedback delays at nearly identical times (2.1 ms and 2.3 ms, reinforcing ~476 Hz) with high feedback gains (0.55 and 0.50) creating constructive interference — a metallic, pressurized resonant peak. Comb outputs summed at gain 0.08, decaying with the main envelope. The comb filter adds a constrained, sealed harmonic character unique to this sound.
 
 ---
 
@@ -126,7 +138,7 @@
 
 **Concept** — Visor seal releasing — the faceplate unlocking with a satisfying depressurization puff and the sudden openness of unfiltered atmosphere.
 
-**Synthesis** — Onset: wide noise burst (low-pass 6 kHz, 30 ms, gain -6 dB) for the depressurization puff — the biggest, widest noise in the theme. Descending sine (480 Hz to 200 Hz) through low-pass that opens wide (Q drops from 12 to 1 over 170 ms) to represent the shift from sealed to open. End with a soft resonant bump (sine 120 Hz, 35 ms, gain -14 dB).
+**Synthesis** — Pure sine descending from 480 Hz to 220 Hz (exponential ramp over 160 ms) through LP closing from 2.4 kHz to 800 Hz (Q 2.0). Gain starts at 0.12, exponential decay over 200 ms. Dual comb filter collapse: two parallel feedback delays start at matched 2.2 ms but diverge — one stretching to 8 ms, the other to 14 ms over 160 ms — destroying the constructive interference that LIMITER_ON built. Feedback gains simultaneously fall from 0.50 to 0.10, dissolving the resonance. Comb mix decays from 0.08 to silence. The widening delay divergence represents the shift from sealed to open — resonance crumbles as the seal releases.
 
 ---
 
@@ -140,7 +152,7 @@
 
 **Concept** — A small toggle on the suit chest panel — a clean, precise electronic pip. Minimal and efficient, designed for gloved fingers.
 
-**Synthesis** — Sine blip (1200 Hz, 8 ms) with immediate exponential decay. A faint octave echo (600 Hz, 10 ms, gain -12 dB) offset by 8 ms. Both through low-pass at 4 kHz. Micro noise click (high-pass 3 kHz, 2 ms, gain -14 dB) at onset for tactile feel.
+**Synthesis** — Soft double-ping: two pure sines at 1.2 kHz and 800 Hz. First ping fades in over 4 ms to 0.10, decays by 18 ms. Second ping enters at 12 ms, fades in over 4 ms to 0.08, decays by 32 ms. Both through LP at 3.5 kHz. Shared feedback delay (28 ms delay time, feedback 0.30) creates subtle trailing echoes mixed at 0.06 — the pings scatter gently into void. No click onset on either ping, both materialise softly via linear ramps.
 
 ---
 
@@ -154,7 +166,7 @@
 
 **Concept** — A new comm channel opening — like tuning into a new radio frequency, the signal crystallizing from static into clarity. A new data stream arriving.
 
-**Synthesis** — Three ascending sine pings (600 Hz, 900 Hz, 1200 Hz, each 15 ms, 10 ms apart) through low-pass at 4 kHz. Layer a noise sweep underneath (band-pass 2-4 kHz, Q = 2, 70 ms, gain -18 dB) that rises in centre frequency for the 'tuning in' feel. Brief delay echo (1 repeat, 20 ms, -22 dB) for radio depth.
+**Synthesis** — Single ascending sine sweep from 500 Hz to 1.4 kHz (exponential ramp over 60 ms) through LP at 3.6 kHz (Q 1.2). Soft fade-in over 8 ms to 0.12, exponential decay by 70 ms. Three-stage cascaded delay chain: delay 1 (24 ms, feedback 0.25) feeds delay 2 (48 ms, feedback 0.20) feeds delay 3 (72 ms, feedback 0.15) — creating a staggered echo cascade where different frequency regions of the sweep trigger echoes at different times. Each delay stage also tapped directly to destination (gains 0.06, 0.04) plus final cascade output at 0.08. The result is a crystallizing signal that assembles itself from scattered reflections.
 
 ---
 
@@ -168,7 +180,7 @@
 
 **Concept** — A comm channel closing — the signal dissolving into static and then silence. Lost contact.
 
-**Synthesis** — Three descending sine pings (1200 Hz, 900 Hz, 600 Hz, each 12 ms, 8 ms apart). Layer a descending noise sweep (band-pass centre drops from 4 kHz to 1 kHz, 50 ms, gain -16 dB). End with a soft sub tone (sine 70 Hz, 20 ms, gain -14 dB) for finality.
+**Synthesis** — Descending sine sweep from 1.4 kHz to 400 Hz (exponential ramp over 60 ms) through LP closing from 3.6 kHz to 1 kHz (Q 1.0). Gain starts at 0.12, exponential decay by 70 ms. Collapsing feedback delay: delay time contracts from 60 ms to 12 ms over 80 ms (feedback 0.45), compressing echoes together as the signal folds inward. Wet path LP-filtered at 2.2 kHz, wet gain decays from 0.10 to silence over 130 ms. The shrinking delay time makes echoes accelerate and pile up — a channel closing in on itself, dissolving into nothing.
 
 ---
 
@@ -182,7 +194,7 @@
 
 **Concept** — The suit's command interface activating — a bright, clear acknowledgement chime that says 'ready for input'. Like the visor HUD focusing and awaiting voice command.
 
-**Synthesis** — Clean sine ping at 1500 Hz (attack 2 ms, release 180 ms) through low-pass at 5 kHz. Gentle vibrato LFO (3 Hz, depth +/-8 Hz) during release for a slight organic shimmer. Layer a faint harmonic (sine 3000 Hz, 50 ms, gain -22 dB). Add a soft noise shimmer (high-pass 4 kHz, gain -30 dB, 60 ms) for atmosphere.
+**Synthesis** — Pure sine beacon at 1.5 kHz through LP at 3.8 kHz (Q 0.7). Soft fade-in over 4 ms to 0.14, exponential decay by 60 ms — the source is a brief, clean blip. Long feedback delay (42 ms delay time, feedback 0.52) generates 4+ echoes that ring out like sonar pings in an empty chamber. Wet path LP-filtered at 2.8 kHz (Q 0.5), wet gain decays from 0.10 to silence over 250 ms — the longest delay tail in the theme. A single clean impulse fracturing into a cascade of reflections dissolving slowly into void.
 
 ---
 
@@ -198,7 +210,7 @@
 
 **Concept** — Typing on the suit forearm keypad — small sealed buttons with a muffled, pressurized tactile feel. Each key has a slightly different pitch, but all share the same 'heard-through-a-helmet' quality.
 
-**Synthesis** — Micro noise-burst (band-pass 3-6 kHz, Q = 3, 10 ms) for the tap. Faint pitched body (sine, 14 ms, gain -18 dB) with frequency randomized per variant (pool: 1000-2200 Hz in 80 Hz steps). Each variant jitters the noise filter centre (+/-500 Hz). Apply low-pass at 5.5 kHz. No room reverb — sealed environment.
+**Synthesis** — Micro sine impulse with randomised frequency per variant (pool: 1000–2280 Hz in 80 Hz steps) through LP at 3.4 kHz. Soft fade-in over 3 ms to 0.06, exponential decay by 14 ms — barely audible source. Two parallel scatter delays with randomised times (delay A: 10–22 ms, delay B: 18–32 ms) — no feedback loops, just single reflections summed at gain 0.04. Each keypress triggers a unique delay pattern, creating the illusion of 16 variants heard through different spatial positions. Clean, sealed, no noise layer.
 
 ---
 
@@ -212,7 +224,7 @@
 
 **Concept** — The delete key on the forearm panel — lower-pitched, a small downward blip like clearing a character from the visor display.
 
-**Synthesis** — Sine blip (550 Hz, descending to 350 Hz over 20 ms) through low-pass at 2.5 kHz. Layer a soft noise pulse (band-pass 1.5 kHz, Q = 2, 15 ms, gain -18 dB). Gain envelope: attack 2 ms, exponential release 28 ms.
+**Synthesis** — Reversed delay envelope: sine descending from 550 Hz to 380 Hz (linear ramp over 40 ms) through LP at 2.2 kHz (Q 1.0). Dry signal starts nearly silent (0.01), swells to 0.08 over 30 ms, then decays by 50 ms. Feedback delay (14 ms, feedback 0.40) with wet gain that swells in from 0.005 to 0.10 over 25 ms, then fades by 60 ms — the delay echoes are louder than the source, creating a reverse-swell effect where the sound appears to materialise from its own reflections. Total duration 60 ms.
 
 ---
 
@@ -226,7 +238,7 @@
 
 **Concept** — Confirming a command — the enter key triggers a two-tone acknowledgement: a low thud of the physical key plus a higher confirmation tone from the suit's audio system. Command accepted.
 
-**Synthesis** — (a) Key thud: sine pop at 500 Hz (3 ms pulse) + noise burst (band-pass 2-4 kHz, 10 ms). (b) Confirmation tone: sine at 1000 Hz (onset at 10 ms, duration 50 ms, gain -6 dB) through low-pass at 3 kHz. (c) Sub-bass: sine 70 Hz (30 ms, gain -10 dB) for the physical key weight. Overall release: 25 ms.
+**Synthesis** — Deep sine impact at 200 Hz through resonant LP at 1.6 kHz (Q 2.5). Soft fade-in over 5 ms to 0.18, exponential decay by 60 ms. Confirmation ping: second sine at 400 Hz enters at 10 ms, fades in over 5 ms to 0.06, decays by 50 ms. Both feed a shared long feedback delay (32 ms, feedback 0.58 — the highest feedback in the theme) through LP at 1.2 kHz (Q 1.0). Wet gain decays from 0.12 over 250 ms, producing 6+ dark, rumbling echoes — the longest delay wash in the keyboard sounds. The high feedback creates a cavernous, reverberant confirmation that lingers well after the key press.
 
 ---
 
@@ -240,7 +252,7 @@
 
 **Concept** — The wide space bar on the forearm panel — a broader, more diffuse press with a hollow quality, like tapping on the pressurized suit casing itself.
 
-**Synthesis** — Filtered noise puff (band-pass 1.2 kHz, Q = 1 for wide diffusion, 18 ms) for the broad impact. Sine undertone at 350 Hz (15 ms, gain -14 dB) through low-pass at 2 kHz. Roll off everything above 4 kHz. Feel: wide, hollow, muffled by the suit.
+**Synthesis** — Filtered noise puff: white noise (30 ms buffer) through bandpass at 800 Hz (Q 0.8) then LP at 2 kHz. Soft fade-in over 5 ms to 0.10, exponential decay by 25 ms. Feedback delay (22 ms, feedback 0.35) with wet path LP-filtered at 1.6 kHz, mixed at 0.06 — creates a brief "distant whoosh" with soft trailing echoes. No pitched oscillator — the only noise-based sound in the theme, emphasising the broad, hollow, diffuse quality of the space bar. Everything LP-capped, keeping the puff warm and muffled.
 
 ---
 
@@ -256,4 +268,4 @@
 
 **Concept** — Orbital silence awakening — the vast quiet of near-space broken only by a deep tone rising from the station's hull. Like hearing your own heartbeat through the suit helmet, a low drone emerges and slowly opens, joined by a distant octave shimmer that drifts in from the void. A gentle LFO breathes through the drone. Thin atmospheric noise and structural sub-bass fill the immense silence. The feeling: floating alone above the clouds, something ancient and serene stirring to life.
 
-**Synthesis** — Primary drone: sine at 110 Hz, low-pass sweeping 200 → 700 Hz over 700 ms then closing to 150 Hz by 1.4 s (Q 2), gain fading in over 500 ms to 0.16. Octave shimmer: sine at 220 Hz enters at 500 ms, through low-pass 500 Hz (Q 1.5), peaks at gain 0.06 around 900 ms. LFO: sine at 1.5 Hz modulates drone gain by 0.03. Atmospheric noise: band-pass 2 kHz (Q 1) through low-pass 3 kHz, slow swell to gain 0.025 over 600 ms, decays over 1.3 s. Sub: sine at 55 Hz, fades in over 400 ms to 0.08, decays over 1.0 s.
+**Synthesis** — Full Sonic DNA showcase across three layers. (a) Primary drone: sine at 110 Hz through LP sweeping 200 → 800 Hz over 700 ms then closing to 180 Hz by 1.4 s (Q 1.5). Soft fade-in over 400 ms to 0.14, sustained until 800 ms, exponential decay by 1.4 s. Feeds a main feedback delay (85 ms, feedback swelling from 0.15 to 0.58 over 700 ms, then falling to 0.10 by 1.3 s) — an echo chamber that builds to near-oscillation then dissolves. Wet path LP-filtered at 1.4 kHz (Q 1.0), wet gain swells from 0 to 0.10 over 500 ms, sustained, then decays. (b) Octave shimmer: sine at 220 Hz enters at 500 ms through LP at 600 Hz (Q 1.0), fades in to 0.06 by 900 ms, decays by 1.4 s. Also feeds the shared delay, adding higher harmonics to the echo chamber. (c) Sub-bass grounding: sine at 55 Hz, fades in over 300 ms to 0.08, decays by 1.0 s — direct to destination, no delay processing, pure foundation. No noise, no LFO — pristine sine purity throughout.

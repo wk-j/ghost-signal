@@ -37,6 +37,19 @@ const meta = {
   },
 };
 
+// ═══════════════════════════════════════════════════════════════════
+// SONIC DNA
+// ═══════════════════════════════════════════════════════════════════
+// Primary waveform:    {{e.g. "FM-modulated sine", "detuned triangle pairs"}}
+// Signature effect:    {{e.g. "ring modulation", "feedback delay tails"}}
+// Transient character: {{e.g. "hard square impulses <3ms", "soft fade-ins"}}
+// Envelope philosophy: {{e.g. "ultra-short, bone-dry", "long dissolving tails"}}
+// Frequency world:     {{e.g. "mid-highs with resonant peaks", "LP-capped at 3kHz"}}
+//
+// Every sound below must use at least one signature technique.
+// If a sound could belong to any theme, it needs redesigning.
+// ═══════════════════════════════════════════════════════════════════
+
 function createSounds(ctx, noiseBuffer) {
   const sounds = {};
 

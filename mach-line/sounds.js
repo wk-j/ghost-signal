@@ -37,665 +37,831 @@ const meta = {
   },
 };
 
+// ═══════════════════════════════════════════════════════════════════
+// SONIC DNA
+// ═══════════════════════════════════════════════════════════════════
+// 1. Primary waveform   — FM percussion (high mod-index oscillator pairs)
+// 2. Signature effect    — WaveShaperNode distortion (nonlinear transfer)
+// 3. Transient character — Sub-2 ms impulse, zero sustain
+// 4. Envelope philosophy — Ultra-short, bone-dry (<50 ms where possible)
+// 5. Frequency world     — Metallic shimmer above 4 kHz (highshelf boosts)
+// ═══════════════════════════════════════════════════════════════════
+
 function createSounds(ctx, noiseBuffer) {
   const sounds = {};
 
+  // Shared waveshaper curve generator
+  function makeDistCurve(amount) {
+    const n = 256, curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const x = (i * 2 / n) - 1;
+      curve[i] = (Math.PI + amount) * x / (Math.PI + amount * Math.abs(x));
+    }
+    return curve;
+  }
+
+  // Pre-baked curves for reuse
+  const distLight = makeDistCurve(8);
+  const distMed = makeDistCurve(20);
+  const distHeavy = makeDistCurve(50);
+  const distCrush = makeDistCurve(150);
+
   // ---------------------------------------------------------------
-  // 1. HOVER — sine sweep 3 kHz → 4.2 kHz, 50 ms
+  // 1. HOVER — FM micro-tick, carrier:mod 1:7, sub-2 ms, waveshaped
   // ---------------------------------------------------------------
   sounds.HOVER = function() {
     const now = ctx.currentTime;
-    const dur = 0.05;
+    const carrierFreq = 3000;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(3000, now);
-    osc.frequency.linearRampToValueAtTime(4200, now + dur);
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = carrierFreq * 7;
+    const modGain = ctx.createGain();
+    modGain.gain.value = carrierFreq * 4;
+    mod.connect(modGain);
 
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = 3600;
-    bp.Q.value = 10;
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.value = carrierFreq;
+    modGain.connect(carrier.frequency);
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.10, now + 0.004);
-    gain.gain.linearRampToValueAtTime(0, now + dur);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(dur);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 6000;
-    const nG = ctx.createGain();
-    nG.gain.value = 0.01;
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 4000;
+    hs.gain.value = 6;
 
-    osc.connect(bp).connect(gain).connect(ctx.destination);
-    nSrc.connect(hp).connect(nG).connect(ctx.destination);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.12, now + 0.001);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
 
-    osc.start(now);
-    osc.stop(now + dur);
-    nSrc.start(now);
-    nSrc.stop(now + dur);
+    carrier.connect(shaper).connect(hs).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.01);
+    mod.start(now);
+    mod.stop(now + 0.01);
   };
 
   // ---------------------------------------------------------------
-  // 2. HOVER_UP — sine sweep 4.2 kHz → 2.8 kHz, 40 ms
+  // 2. HOVER_UP — inverted FM tick, carrier:mod 1:5, shorter
   // ---------------------------------------------------------------
   sounds.HOVER_UP = function() {
     const now = ctx.currentTime;
-    const dur = 0.04;
+    const carrierFreq = 4200;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(4200, now);
-    osc.frequency.linearRampToValueAtTime(2800, now + dur);
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = carrierFreq * 5;
+    const modGain = ctx.createGain();
+    modGain.gain.value = carrierFreq * 3;
+    mod.connect(modGain);
 
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = 3500;
-    bp.Q.value = 8;
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.value = carrierFreq;
+    modGain.connect(carrier.frequency);
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.08, now + 0.003);
-    gain.gain.linearRampToValueAtTime(0, now + dur);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distLight;
+    shaper.oversample = '4x';
 
-    osc.connect(bp).connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + dur);
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 3000;
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.10, now + 0.0008);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.006);
+
+    carrier.connect(shaper).connect(hp).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.008);
+    mod.start(now);
+    mod.stop(now + 0.008);
   };
 
   // ---------------------------------------------------------------
-  // 3. CLICK — square pop + noise tick, 30 ms
+  // 3. CLICK — pure impulse, gain automation 0→1→0 in 0.5 ms,
+  //    through waveshaper + highshelf
   // ---------------------------------------------------------------
   sounds.CLICK = function() {
     const now = ctx.currentTime;
 
     const osc = ctx.createOscillator();
-    osc.type = 'square';
+    osc.type = 'sine';
     osc.frequency.value = 600;
-    const oscG = ctx.createGain();
-    oscG.gain.setValueAtTime(0.25, now);
-    oscG.gain.exponentialRampToValueAtTime(0.001, now + 0.003);
-    osc.connect(oscG).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 0.005);
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.015);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 5000;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.3, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
-    nSrc.connect(hp).connect(nG).connect(ctx.destination);
-    nSrc.start(now);
-    nSrc.stop(now + 0.03);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distHeavy;
+    shaper.oversample = '4x';
+
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 5000;
+    hs.gain.value = 8;
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.35, now + 0.00025);
+    g.gain.linearRampToValueAtTime(0, now + 0.0005);
+
+    osc.connect(shaper).connect(hs).connect(g).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.002);
   };
 
   // ---------------------------------------------------------------
-  // 4. IMPORTANT_CLICK — click transient + triangle body + sub, 140 ms
+  // 4. IMPORTANT_CLICK — FM kick (mod index 8), rapid pitch drop,
+  //    through waveshaper for saturated impact
   // ---------------------------------------------------------------
   sounds.IMPORTANT_CLICK = function() {
     const now = ctx.currentTime;
+    const carrierFreq = 350;
 
-    const pop = ctx.createOscillator();
-    pop.type = 'square';
-    pop.frequency.value = 600;
-    const popG = ctx.createGain();
-    popG.gain.setValueAtTime(0.2, now);
-    popG.gain.exponentialRampToValueAtTime(0.001, now + 0.003);
-    pop.connect(popG).connect(ctx.destination);
-    pop.start(now); pop.stop(now + 0.005);
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.setValueAtTime(carrierFreq * 2, now);
+    mod.frequency.exponentialRampToValueAtTime(carrierFreq * 0.5, now + 0.04);
+    const modGain = ctx.createGain();
+    modGain.gain.setValueAtTime(carrierFreq * 8, now);
+    modGain.gain.exponentialRampToValueAtTime(carrierFreq * 0.5, now + 0.06);
+    mod.connect(modGain);
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.012);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 5000;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.2, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
-    nSrc.connect(hp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.012);
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.setValueAtTime(carrierFreq, now);
+    carrier.frequency.exponentialRampToValueAtTime(60, now + 0.05);
+    modGain.connect(carrier.frequency);
 
-    const body = ctx.createOscillator();
-    body.type = 'triangle';
-    body.frequency.value = 350;
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distHeavy;
+    shaper.oversample = '4x';
+
     const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 1000; lp.Q.value = 8;
-    const bG = ctx.createGain();
-    bG.gain.setValueAtTime(0, now);
-    bG.gain.linearRampToValueAtTime(0.3, now + 0.003);
-    bG.gain.setValueAtTime(0.3, now + 0.05);
-    bG.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
-    body.connect(lp).connect(bG).connect(ctx.destination);
-    body.start(now); body.stop(now + 0.15);
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(8000, now);
+    lp.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+    lp.Q.value = 2;
 
-    const sub = ctx.createOscillator();
-    sub.type = 'sine'; sub.frequency.value = 55;
-    const sG = ctx.createGain();
-    sG.gain.setValueAtTime(0.18, now);
-    sG.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-    sub.connect(sG).connect(ctx.destination);
-    sub.start(now); sub.stop(now + 0.06);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.30, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+
+    carrier.connect(shaper).connect(lp).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.12);
+    mod.start(now);
+    mod.stop(now + 0.12);
   };
 
   // ---------------------------------------------------------------
-  // 5. FEATURE_SWITCH_ON — turbine spool-up, 280 ms
+  // 5. FEATURE_SWITCH_ON — FM sweep, carrier up + mod index rising,
+  //    increasing metallic harmonics, waveshaped, ~150 ms
   // ---------------------------------------------------------------
   sounds.FEATURE_SWITCH_ON = function() {
     const now = ctx.currentTime;
+    const dur = 0.15;
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.025);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 3500; bp.Q.value = 3;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.3, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
-    nSrc.connect(bp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.025);
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.setValueAtTime(400, now);
+    mod.frequency.linearRampToValueAtTime(1800, now + dur);
+    const modGain = ctx.createGain();
+    modGain.gain.setValueAtTime(50, now);
+    modGain.gain.linearRampToValueAtTime(2000, now + dur);
+    mod.connect(modGain);
 
-    const saw = ctx.createOscillator();
-    saw.type = 'sawtooth';
-    saw.frequency.setValueAtTime(180, now + 0.025);
-    saw.frequency.exponentialRampToValueAtTime(720, now + 0.225);
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.setValueAtTime(300, now);
+    carrier.frequency.exponentialRampToValueAtTime(2400, now + dur);
+    modGain.connect(carrier.frequency);
 
-    const sine = ctx.createOscillator();
-    sine.type = 'sine';
-    sine.frequency.setValueAtTime(180, now + 0.025);
-    sine.frequency.exponentialRampToValueAtTime(720, now + 0.225);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
 
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.Q.value = 5;
-    lp.frequency.setValueAtTime(350, now + 0.025);
-    lp.frequency.exponentialRampToValueAtTime(3500, now + 0.225);
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 3000;
+    hs.gain.value = 4;
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.2, now + 0.065);
-    gain.gain.setValueAtTime(0.2, now + 0.16);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.18, now + 0.005);
+    g.gain.setValueAtTime(0.18, now + dur * 0.7);
+    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
 
-    const mix = ctx.createGain();
-    mix.gain.value = 0.5;
-
-    saw.connect(lp);
-    sine.connect(mix).connect(lp);
-    lp.connect(gain).connect(ctx.destination);
-
-    saw.start(now + 0.025); saw.stop(now + 0.29);
-    sine.start(now + 0.025); sine.stop(now + 0.29);
+    carrier.connect(shaper).connect(hs).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + dur + 0.01);
+    mod.start(now);
+    mod.stop(now + dur + 0.01);
   };
 
   // ---------------------------------------------------------------
-  // 6. FEATURE_SWITCH_OFF — turbine spool-down, 250 ms
+  // 6. FEATURE_SWITCH_OFF — FM downsweep, mod index decreasing,
+  //    waveshaped, under 120 ms
   // ---------------------------------------------------------------
   sounds.FEATURE_SWITCH_OFF = function() {
     const now = ctx.currentTime;
+    const dur = 0.11;
 
-    const saw = ctx.createOscillator();
-    saw.type = 'sawtooth';
-    saw.frequency.setValueAtTime(720, now);
-    saw.frequency.exponentialRampToValueAtTime(120, now + 0.22);
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.setValueAtTime(1800, now);
+    mod.frequency.exponentialRampToValueAtTime(200, now + dur);
+    const modGain = ctx.createGain();
+    modGain.gain.setValueAtTime(2000, now);
+    modGain.gain.exponentialRampToValueAtTime(20, now + dur);
+    mod.connect(modGain);
 
-    const sine = ctx.createOscillator();
-    sine.type = 'sine';
-    sine.frequency.setValueAtTime(720, now);
-    sine.frequency.exponentialRampToValueAtTime(120, now + 0.22);
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.setValueAtTime(2400, now);
+    carrier.frequency.exponentialRampToValueAtTime(200, now + dur);
+    modGain.connect(carrier.frequency);
 
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.Q.value = 5;
-    lp.frequency.setValueAtTime(3500, now);
-    lp.frequency.exponentialRampToValueAtTime(250, now + 0.22);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(3000, now);
+    bp.frequency.exponentialRampToValueAtTime(500, now + dur);
+    bp.Q.value = 1.5;
 
-    const mix = ctx.createGain();
-    mix.gain.value = 0.5;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.18, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
 
-    saw.connect(lp);
-    sine.connect(mix).connect(lp);
-    lp.connect(gain).connect(ctx.destination);
-
-    saw.start(now); saw.stop(now + 0.26);
-    sine.start(now); sine.stop(now + 0.26);
-
-    const sub = ctx.createOscillator();
-    sub.type = 'sine'; sub.frequency.value = 50;
-    const sG = ctx.createGain();
-    sG.gain.setValueAtTime(0.1, now + 0.16);
-    sG.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-    sub.connect(sG).connect(ctx.destination);
-    sub.start(now + 0.16); sub.stop(now + 0.26);
+    carrier.connect(shaper).connect(bp).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + dur + 0.01);
+    mod.start(now);
+    mod.stop(now + dur + 0.01);
   };
 
   // ---------------------------------------------------------------
-  // 7. LIMITER_ON — G-force compression, 220 ms
+  // 7. LIMITER_ON — waveshaped square through narrow bandpass,
+  //    crushed timbral compression, 220 ms
   // ---------------------------------------------------------------
   sounds.LIMITER_ON = function() {
     const now = ctx.currentTime;
 
-    const carrier = ctx.createOscillator();
-    carrier.type = 'sine'; carrier.frequency.value = 1200;
-    const modulator = ctx.createOscillator();
-    modulator.type = 'sine'; modulator.frequency.value = 250;
-    const modGain = ctx.createGain();
-    modGain.gain.value = 0;
-    modulator.connect(modGain.gain);
-    const cG = ctx.createGain();
-    cG.gain.setValueAtTime(0.18, now);
-    cG.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
-    carrier.connect(modGain).connect(cG).connect(ctx.destination);
-    carrier.start(now); carrier.stop(now + 0.04);
-    modulator.start(now); modulator.stop(now + 0.04);
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(400, now);
+    osc.frequency.linearRampToValueAtTime(600, now + 0.18);
 
-    const saw = ctx.createOscillator();
-    saw.type = 'sawtooth';
-    saw.frequency.setValueAtTime(250, now + 0.02);
-    saw.frequency.exponentialRampToValueAtTime(500, now + 0.20);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distCrush;
+    shaper.oversample = '4x';
 
-    const sine = ctx.createOscillator();
-    sine.type = 'sine';
-    sine.frequency.setValueAtTime(250, now + 0.02);
-    sine.frequency.exponentialRampToValueAtTime(500, now + 0.20);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(800, now);
+    bp.frequency.linearRampToValueAtTime(1200, now + 0.18);
+    bp.Q.value = 18;
 
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.Q.value = 14;
-    lp.frequency.setValueAtTime(400, now + 0.02);
-    lp.frequency.exponentialRampToValueAtTime(1800, now + 0.20);
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 4000;
+    hs.gain.value = 5;
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.18, now + 0.055);
-    gain.gain.setValueAtTime(0.18, now + 0.15);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.14, now + 0.003);
+    g.gain.setValueAtTime(0.14, now + 0.15);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
 
-    const mix = ctx.createGain(); mix.gain.value = 0.5;
-    saw.connect(lp);
-    sine.connect(mix).connect(lp);
-    lp.connect(gain).connect(ctx.destination);
-    saw.start(now + 0.02); saw.stop(now + 0.23);
-    sine.start(now + 0.02); sine.stop(now + 0.23);
+    osc.connect(shaper).connect(bp).connect(hs).connect(g).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.23);
   };
 
   // ---------------------------------------------------------------
-  // 8. LIMITER_OFF — G-force release, 200 ms
+  // 8. LIMITER_OFF — noise impulse through waveshaper with
+  //    reducing distortion (pre-shaper gain ramp), 200 ms
   // ---------------------------------------------------------------
   sounds.LIMITER_OFF = function() {
     const now = ctx.currentTime;
 
     const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.018);
+    nSrc.buffer = noiseBuffer(0.20);
+
+    const preGain = ctx.createGain();
+    preGain.gain.setValueAtTime(1.0, now);
+    preGain.gain.exponentialRampToValueAtTime(0.05, now + 0.18);
+
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distHeavy;
+    shaper.oversample = '4x';
+
     const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 3000; bp.Q.value = 2;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.3, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
-    nSrc.connect(bp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.02);
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(2500, now);
+    bp.frequency.exponentialRampToValueAtTime(600, now + 0.18);
+    bp.Q.value = 4;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(500, now);
-    osc.frequency.exponentialRampToValueAtTime(160, now + 0.18);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.20, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
 
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.Q.value = 6;
-    lp.frequency.setValueAtTime(2500, now);
-    lp.frequency.exponentialRampToValueAtTime(350, now + 0.18);
-
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.18, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
-
-    osc.connect(lp).connect(gain).connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.21);
-
-    const rev = ctx.createOscillator();
-    rev.type = 'sine'; rev.frequency.value = 140;
-    const rG = ctx.createGain();
-    rG.gain.setValueAtTime(0.06, now + 0.14);
-    rG.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
-    rev.connect(rG).connect(ctx.destination);
-    rev.start(now + 0.14); rev.stop(now + 0.21);
+    nSrc.connect(preGain).connect(shaper).connect(bp).connect(g).connect(ctx.destination);
+    nSrc.start(now);
+    nSrc.stop(now + 0.21);
   };
 
   // ---------------------------------------------------------------
-  // 9. SWITCH_TOGGLE — avionics toggle, 35 ms
+  // 9. SWITCH_TOGGLE — FM pop, 1:3 ratio, 15 ms total, waveshaped
   // ---------------------------------------------------------------
   sounds.SWITCH_TOGGLE = function() {
     const now = ctx.currentTime;
+    const carrierFreq = 1600;
 
-    const osc1 = ctx.createOscillator();
-    osc1.type = 'square'; osc1.frequency.value = 1600;
-    const g1 = ctx.createGain();
-    g1.gain.setValueAtTime(0.18, now);
-    g1.gain.exponentialRampToValueAtTime(0.001, now + 0.007);
-    const hs = ctx.createBiquadFilter();
-    hs.type = 'highshelf'; hs.frequency.value = 4000; hs.gain.value = 4;
-    osc1.connect(hs).connect(g1).connect(ctx.destination);
-    osc1.start(now); osc1.stop(now + 0.01);
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = carrierFreq * 3;
+    const modGain = ctx.createGain();
+    modGain.gain.value = carrierFreq * 5;
+    mod.connect(modGain);
 
-    const osc2 = ctx.createOscillator();
-    osc2.type = 'square'; osc2.frequency.value = 800;
-    const g2 = ctx.createGain();
-    g2.gain.setValueAtTime(0.09, now + 0.008);
-    g2.gain.exponentialRampToValueAtTime(0.001, now + 0.028);
-    osc2.connect(g2).connect(ctx.destination);
-    osc2.start(now + 0.008); osc2.stop(now + 0.035);
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.value = carrierFreq;
+    modGain.connect(carrier.frequency);
+
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.16, now + 0.001);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
+
+    carrier.connect(shaper).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.015);
+    mod.start(now);
+    mod.stop(now + 0.015);
   };
 
   // ---------------------------------------------------------------
-  // 10. TAB_INSERT — 3 ascending pips + noise sweep, 110 ms
+  // 10. TAB_INSERT — FM percussion cascade, 3 ascending FM ticks
+  //     with mod ratios 1:3, 1:5, 1:7, through shared waveshaper
   // ---------------------------------------------------------------
   sounds.TAB_INSERT = function() {
     const now = ctx.currentTime;
-    const freqs = [550, 825, 1100];
+    const freqs = [800, 1200, 1800];
+    const ratios = [3, 5, 7];
+
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
+
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 4000;
+    hs.gain.value = 5;
+
+    const master = ctx.createGain();
+    master.gain.value = 0.14;
+
+    shaper.connect(hs).connect(master).connect(ctx.destination);
 
     freqs.forEach((f, i) => {
-      const t = now + i * 0.018;
-      const osc = ctx.createOscillator();
-      osc.type = 'sine'; osc.frequency.value = f;
+      const t = now + i * 0.015;
+
+      const mod = ctx.createOscillator();
+      mod.type = 'sine';
+      mod.frequency.value = f * ratios[i];
+      const mG = ctx.createGain();
+      mG.gain.value = f * 4;
+      mod.connect(mG);
+
+      const car = ctx.createOscillator();
+      car.type = 'sine';
+      car.frequency.value = f;
+      mG.connect(car.frequency);
+
       const g = ctx.createGain();
-      g.gain.setValueAtTime(0.18, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.022);
-      osc.connect(g).connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.025);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(1.0, t + 0.001);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.008);
+
+      car.connect(g).connect(shaper);
+      car.start(t);
+      car.stop(t + 0.01);
+      mod.start(t);
+      mod.stop(t + 0.01);
     });
-
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.09);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 3500; bp.Q.value = 1.5;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.08, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-    nSrc.connect(bp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.11);
-
-    const delay = ctx.createDelay(0.05);
-    delay.delayTime.value = 0.035;
-    const dG = ctx.createGain();
-    dG.gain.value = 0.05;
-    nG.connect(delay).connect(dG).connect(ctx.destination);
   };
 
   // ---------------------------------------------------------------
-  // 11. TAB_CLOSE — 3 descending pips + zip + thud, 100 ms
+  // 11. TAB_CLOSE — reverse FM cascade, 3 descending FM ticks,
+  //     mod ratios decreasing, through waveshaper
   // ---------------------------------------------------------------
   sounds.TAB_CLOSE = function() {
     const now = ctx.currentTime;
-    const freqs = [1100, 825, 550];
+    const freqs = [1800, 1200, 800];
+    const ratios = [7, 5, 3];
+
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
+
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 8000;
+    lp.Q.value = 2;
+
+    const master = ctx.createGain();
+    master.gain.value = 0.14;
+
+    shaper.connect(lp).connect(master).connect(ctx.destination);
 
     freqs.forEach((f, i) => {
       const t = now + i * 0.012;
-      const osc = ctx.createOscillator();
-      osc.type = 'sine'; osc.frequency.value = f;
+
+      const mod = ctx.createOscillator();
+      mod.type = 'sine';
+      mod.frequency.value = f * ratios[i];
+      const mG = ctx.createGain();
+      mG.gain.value = f * 3;
+      mod.connect(mG);
+
+      const car = ctx.createOscillator();
+      car.type = 'sine';
+      car.frequency.value = f;
+      mG.connect(car.frequency);
+
       const g = ctx.createGain();
-      g.gain.setValueAtTime(0.16, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.016);
-      osc.connect(g).connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.02);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(1.0, t + 0.001);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.008);
+
+      car.connect(g).connect(shaper);
+      car.start(t);
+      car.stop(t + 0.01);
+      mod.start(t);
+      mod.stop(t + 0.01);
     });
-
-    const zip = ctx.createOscillator();
-    zip.type = 'sawtooth';
-    zip.frequency.setValueAtTime(3500, now);
-    zip.frequency.exponentialRampToValueAtTime(180, now + 0.045);
-    const zG = ctx.createGain();
-    zG.gain.setValueAtTime(0.1, now);
-    zG.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
-    zip.connect(zG).connect(ctx.destination);
-    zip.start(now); zip.stop(now + 0.05);
-
-    const thud = ctx.createOscillator();
-    thud.type = 'sine'; thud.frequency.value = 80;
-    const tG = ctx.createGain();
-    tG.gain.setValueAtTime(0.14, now + 0.045);
-    tG.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
-    thud.connect(tG).connect(ctx.destination);
-    thud.start(now + 0.045); thud.stop(now + 0.1);
   };
 
   // ---------------------------------------------------------------
-  // 12. TAB_SLASH — IFF interrogation ping, 150 ms
+  // 12. TAB_SLASH — FM bell (ratio 1:1.4 for inharmonics),
+  //     short sustain 80 ms, waveshaper + highshelf
   // ---------------------------------------------------------------
   sounds.TAB_SLASH = function() {
     const now = ctx.currentTime;
+    const carrierFreq = 1500;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'triangle'; osc.frequency.value = 1500;
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = carrierFreq * 1.4;
+    const modGain = ctx.createGain();
+    modGain.gain.setValueAtTime(carrierFreq * 3, now);
+    modGain.gain.exponentialRampToValueAtTime(carrierFreq * 0.2, now + 0.08);
+    mod.connect(modGain);
 
-    const lfo = ctx.createOscillator();
-    lfo.type = 'sine'; lfo.frequency.value = 8;
-    const lfoG = ctx.createGain();
-    lfoG.gain.value = 25;
-    lfo.connect(lfoG).connect(osc.frequency);
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.value = carrierFreq;
+    modGain.connect(carrier.frequency);
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.22, now + 0.002);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distLight;
+    shaper.oversample = '4x';
 
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.16);
-    lfo.start(now); lfo.stop(now + 0.16);
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 4500;
+    hs.gain.value = 7;
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.05);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 9000;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.035, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-    nSrc.connect(hp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.05);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.18, now + 0.001);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    carrier.connect(shaper).connect(hs).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.09);
+    mod.start(now);
+    mod.stop(now + 0.09);
   };
 
   // ---------------------------------------------------------------
-  // 13. TYPING_LETTER — carbon-fiber key cap, 22 ms (16 variants)
+  // 13. TYPING_LETTER — FM micro-percussion, 16 ratio variants,
+  //     each under 12 ms, through waveshaper
   // ---------------------------------------------------------------
   sounds.TYPING_LETTER = function() {
     const now = ctx.currentTime;
+    const ratios = [
+      1, 2, 3, 4, 5, 6, 7, 1.4,
+      0.5, 1.5, 2.5, 3.5, 0.333, 0.25, 0.2, 0.143
+    ];
+    const idx = Math.floor(Math.random() * 16);
+    const ratio = ratios[idx];
+    const carrierFreq = 2000 + idx * 150;
 
-    const bodyFreq = 800 + Math.floor(Math.random() * 16) * 60;
-    const noiseCentre = 4500 + (Math.random() - 0.5) * 1600;
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = carrierFreq * ratio;
+    const modGain = ctx.createGain();
+    modGain.gain.value = carrierFreq * 3;
+    mod.connect(modGain);
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.012);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = noiseCentre; bp.Q.value = 2.5;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.22, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
-    nSrc.connect(bp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.022);
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.value = carrierFreq;
+    modGain.connect(carrier.frequency);
 
-    const osc = ctx.createOscillator();
-    osc.type = 'sine'; osc.frequency.value = bodyFreq;
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
+
     const g = ctx.createGain();
-    g.gain.setValueAtTime(0.05, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
-    osc.connect(g).connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.022);
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.14, now + 0.0005);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+
+    carrier.connect(shaper).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.012);
+    mod.start(now);
+    mod.stop(now + 0.012);
   };
 
   // ---------------------------------------------------------------
-  // 14. TYPING_BACKSPACE — data erasure, 28 ms
+  // 14. TYPING_BACKSPACE — low FM thud, carrier 200 Hz, ratio 1:2,
+  //     high mod index, under 15 ms, waveshaped
   // ---------------------------------------------------------------
   sounds.TYPING_BACKSPACE = function() {
     const now = ctx.currentTime;
+    const carrierFreq = 200;
 
-    const osc = ctx.createOscillator();
-    osc.type = 'square'; osc.frequency.value = 500;
+    const mod = ctx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = carrierFreq * 2;
+    const modGain = ctx.createGain();
+    modGain.gain.setValueAtTime(carrierFreq * 6, now);
+    modGain.gain.exponentialRampToValueAtTime(carrierFreq * 0.5, now + 0.012);
+    mod.connect(modGain);
+
+    const carrier = ctx.createOscillator();
+    carrier.type = 'sine';
+    carrier.frequency.setValueAtTime(carrierFreq, now);
+    carrier.frequency.exponentialRampToValueAtTime(80, now + 0.012);
+    modGain.connect(carrier.frequency);
+
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distHeavy;
+    shaper.oversample = '4x';
+
     const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 2500;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0.14, now);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.007);
-    osc.connect(lp).connect(g).connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.01);
+    lp.type = 'lowpass';
+    lp.frequency.value = 3000;
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.022);
-    const nLp = ctx.createBiquadFilter();
-    nLp.type = 'lowpass'; nLp.frequency.value = 2500;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.01, now + 0.004);
-    nG.gain.linearRampToValueAtTime(0.07, now + 0.022);
-    nG.gain.linearRampToValueAtTime(0, now + 0.025);
-    nSrc.connect(nLp).connect(nG).connect(ctx.destination);
-    nSrc.start(now + 0.004); nSrc.stop(now + 0.028);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.18, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.013);
+
+    carrier.connect(shaper).connect(lp).connect(g).connect(ctx.destination);
+    carrier.start(now);
+    carrier.stop(now + 0.015);
+    mod.start(now);
+    mod.stop(now + 0.015);
   };
 
   // ---------------------------------------------------------------
-  // 15. TYPING_ENTER — mission confirm, 90 ms
+  // 15. TYPING_ENTER — layered FM impact, 3 simultaneous FM pairs
+  //     at ratios 1:1, 1:3, 1:7 + 50 Hz sub-impulse, waveshaped
   // ---------------------------------------------------------------
   sounds.TYPING_ENTER = function() {
     const now = ctx.currentTime;
+    const layers = [
+      { carrier: 300, ratio: 1, index: 4 },
+      { carrier: 600, ratio: 3, index: 5 },
+      { carrier: 1200, ratio: 7, index: 3 },
+    ];
 
-    const pop = ctx.createOscillator();
-    pop.type = 'square'; pop.frequency.value = 400;
-    const pG = ctx.createGain();
-    pG.gain.setValueAtTime(0.2, now);
-    pG.gain.exponentialRampToValueAtTime(0.001, now + 0.003);
-    pop.connect(pG).connect(ctx.destination);
-    pop.start(now); pop.stop(now + 0.005);
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distHeavy;
+    shaper.oversample = '4x';
 
-    const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.01);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 3000; bp.Q.value = 1.5;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.14, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
-    nSrc.connect(bp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.012);
+    const hs = ctx.createBiquadFilter();
+    hs.type = 'highshelf';
+    hs.frequency.value = 4000;
+    hs.gain.value = 4;
 
-    const body = ctx.createOscillator();
-    body.type = 'sawtooth';
-    body.frequency.setValueAtTime(400, now);
-    body.frequency.exponentialRampToValueAtTime(250, now + 0.06);
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 1200; lp.Q.value = 7;
-    const bG = ctx.createGain();
-    bG.gain.setValueAtTime(0.2, now);
-    bG.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
-    body.connect(lp).connect(bG).connect(ctx.destination);
-    body.start(now); body.stop(now + 0.08);
+    const master = ctx.createGain();
+    master.gain.value = 0.10;
 
+    shaper.connect(hs).connect(master).connect(ctx.destination);
+
+    layers.forEach((l) => {
+      const mod = ctx.createOscillator();
+      mod.type = 'sine';
+      mod.frequency.value = l.carrier * l.ratio;
+      const mG = ctx.createGain();
+      mG.gain.setValueAtTime(l.carrier * l.index, now);
+      mG.gain.exponentialRampToValueAtTime(l.carrier * 0.1, now + 0.04);
+      mod.connect(mG);
+
+      const car = ctx.createOscillator();
+      car.type = 'sine';
+      car.frequency.value = l.carrier;
+      mG.connect(car.frequency);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(1.0, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+      car.connect(g).connect(shaper);
+      car.start(now);
+      car.stop(now + 0.06);
+      mod.start(now);
+      mod.stop(now + 0.06);
+    });
+
+    // Sub-impulse at 50 Hz
     const sub = ctx.createOscillator();
-    sub.type = 'sine'; sub.frequency.value = 65;
+    sub.type = 'sine';
+    sub.frequency.value = 50;
     const sG = ctx.createGain();
-    sG.gain.setValueAtTime(0.2, now);
-    sG.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+    sG.gain.setValueAtTime(0.22, now);
+    sG.gain.exponentialRampToValueAtTime(0.001, now + 0.005);
     sub.connect(sG).connect(ctx.destination);
-    sub.start(now); sub.stop(now + 0.04);
+    sub.start(now);
+    sub.stop(now + 0.007);
   };
 
   // ---------------------------------------------------------------
-  // 16. TYPING_SPACE — pressure release, 28 ms
+  // 16. TYPING_SPACE — shaped noise burst through waveshaper +
+  //     narrow bandpass at 2 kHz, 15 ms total
   // ---------------------------------------------------------------
   sounds.TYPING_SPACE = function() {
     const now = ctx.currentTime;
 
     const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(0.02);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 1200; bp.Q.value = 1.5;
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 4000;
-    const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0.18, now);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
-    nSrc.connect(bp).connect(lp).connect(nG).connect(ctx.destination);
-    nSrc.start(now); nSrc.stop(now + 0.028);
+    nSrc.buffer = noiseBuffer(0.015);
 
-    const osc = ctx.createOscillator();
-    osc.type = 'triangle'; osc.frequency.value = 300;
+    const shaper = ctx.createWaveShaper();
+    shaper.curve = distMed;
+    shaper.oversample = '4x';
+
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 2000;
+    bp.Q.value = 12;
+
     const g = ctx.createGain();
-    g.gain.setValueAtTime(0.08, now);
+    g.gain.setValueAtTime(0.20, now);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.013);
-    osc.connect(g).connect(ctx.destination);
-    osc.start(now); osc.stop(now + 0.028);
+
+    nSrc.connect(shaper).connect(bp).connect(g).connect(ctx.destination);
+    nSrc.start(now);
+    nSrc.stop(now + 0.015);
   };
 
   // ---------------------------------------------------------------
-  // 17. APP_START — stealth signal emerging, 1.3 s
+  // 17. APP_START — full DNA showcase, ~800 ms, multiple FM layers
+  //     entering in sequence, distorted noise onset, sharp cutoff
   // ---------------------------------------------------------------
   sounds.APP_START = function() {
     const now = ctx.currentTime;
+    const dur = 0.80;
 
-    // Primary tone — low sine, slow filter opening
-    const drone = ctx.createOscillator();
-    drone.type = 'sine';
-    drone.frequency.value = 140;
-    const dLp = ctx.createBiquadFilter();
-    dLp.type = 'lowpass';
-    dLp.frequency.setValueAtTime(200, now);
-    dLp.frequency.linearRampToValueAtTime(800, now + 0.7);
-    dLp.frequency.exponentialRampToValueAtTime(180, now + 1.3);
-    dLp.Q.value = 6;
-    const dG = ctx.createGain();
-    dG.gain.setValueAtTime(0, now);
-    dG.gain.linearRampToValueAtTime(0.16, now + 0.4);
-    dG.gain.setValueAtTime(0.16, now + 0.7);
-    dG.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
-    drone.connect(dLp).connect(dG).connect(ctx.destination);
-    drone.start(now);
-    drone.stop(now + 1.35);
-
-    // Dissonant minor second — cold, unsettling tension
-    const dis = ctx.createOscillator();
-    dis.type = 'sine';
-    dis.frequency.value = 148;
-    const disLp = ctx.createBiquadFilter();
-    disLp.type = 'lowpass';
-    disLp.frequency.value = 400;
-    disLp.Q.value = 3;
-    const disG = ctx.createGain();
-    disG.gain.setValueAtTime(0, now + 0.4);
-    disG.gain.linearRampToValueAtTime(0.07, now + 0.7);
-    disG.gain.setValueAtTime(0.07, now + 0.85);
-    disG.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
-    dis.connect(disLp).connect(disG).connect(ctx.destination);
-    dis.start(now + 0.4);
-    dis.stop(now + 1.35);
-
-    // Sub presence — barely felt
-    const sub = ctx.createOscillator();
-    sub.type = 'sine';
-    sub.frequency.value = 45;
-    const sG = ctx.createGain();
-    sG.gain.setValueAtTime(0, now);
-    sG.gain.linearRampToValueAtTime(0.10, now + 0.35);
-    sG.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
-    sub.connect(sG).connect(ctx.destination);
-    sub.start(now);
-    sub.stop(now + 0.95);
-
-    // Dark wind noise — very low, filtered tightly
+    // --- Layer 1: distorted noise burst at onset (0–60 ms) ---
     const nSrc = ctx.createBufferSource();
-    nSrc.buffer = noiseBuffer(1.2);
+    nSrc.buffer = noiseBuffer(0.06);
+    const nShaper = ctx.createWaveShaper();
+    nShaper.curve = distCrush;
+    nShaper.oversample = '4x';
     const nBp = ctx.createBiquadFilter();
     nBp.type = 'bandpass';
-    nBp.frequency.value = 800;
-    nBp.Q.value = 2;
-    const nLp = ctx.createBiquadFilter();
-    nLp.type = 'lowpass';
-    nLp.frequency.value = 1000;
+    nBp.frequency.value = 3000;
+    nBp.Q.value = 3;
     const nG = ctx.createGain();
-    nG.gain.setValueAtTime(0, now);
-    nG.gain.linearRampToValueAtTime(0.03, now + 0.5);
-    nG.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-    nSrc.connect(nBp).connect(nLp).connect(nG).connect(ctx.destination);
+    nG.gain.setValueAtTime(0.16, now);
+    nG.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    nSrc.connect(nShaper).connect(nBp).connect(nG).connect(ctx.destination);
     nSrc.start(now);
-    nSrc.stop(now + 1.25);
+    nSrc.stop(now + 0.065);
+
+    // --- Layer 2: low FM drone (carrier 80 Hz, ratio 1:1, slowly
+    //     increasing mod index), 0–750 ms ---
+    const droneMod = ctx.createOscillator();
+    droneMod.type = 'sine';
+    droneMod.frequency.value = 80;
+    const droneModG = ctx.createGain();
+    droneModG.gain.setValueAtTime(10, now);
+    droneModG.gain.linearRampToValueAtTime(400, now + 0.65);
+    droneModG.gain.setValueAtTime(400, now + 0.72);
+    droneModG.gain.linearRampToValueAtTime(0, now + 0.75);
+    droneMod.connect(droneModG);
+
+    const droneCar = ctx.createOscillator();
+    droneCar.type = 'sine';
+    droneCar.frequency.value = 80;
+    droneModG.connect(droneCar.frequency);
+
+    const droneShaper = ctx.createWaveShaper();
+    droneShaper.curve = distMed;
+    droneShaper.oversample = '4x';
+
+    const droneLp = ctx.createBiquadFilter();
+    droneLp.type = 'lowpass';
+    droneLp.frequency.setValueAtTime(200, now);
+    droneLp.frequency.linearRampToValueAtTime(1200, now + 0.55);
+    droneLp.frequency.linearRampToValueAtTime(200, now + 0.75);
+    droneLp.Q.value = 4;
+
+    const droneG = ctx.createGain();
+    droneG.gain.setValueAtTime(0, now);
+    droneG.gain.linearRampToValueAtTime(0.16, now + 0.15);
+    droneG.gain.setValueAtTime(0.16, now + 0.72);
+    droneG.gain.linearRampToValueAtTime(0, now + 0.75);
+
+    droneCar.connect(droneShaper).connect(droneLp).connect(droneG).connect(ctx.destination);
+    droneCar.start(now);
+    droneCar.stop(now + 0.76);
+    droneMod.start(now);
+    droneMod.stop(now + 0.76);
+
+    // --- Layer 3: metallic shimmer (carrier 4 kHz, ratio 1:7),
+    //     enters at 200 ms, brief 250 ms burst ---
+    const shimMod = ctx.createOscillator();
+    shimMod.type = 'sine';
+    shimMod.frequency.value = 4000 * 7;
+    const shimModG = ctx.createGain();
+    shimModG.gain.setValueAtTime(4000 * 3, now + 0.20);
+    shimModG.gain.exponentialRampToValueAtTime(100, now + 0.45);
+    shimMod.connect(shimModG);
+
+    const shimCar = ctx.createOscillator();
+    shimCar.type = 'sine';
+    shimCar.frequency.value = 4000;
+    shimModG.connect(shimCar.frequency);
+
+    const shimShaper = ctx.createWaveShaper();
+    shimShaper.curve = distLight;
+    shimShaper.oversample = '4x';
+
+    const shimHs = ctx.createBiquadFilter();
+    shimHs.type = 'highshelf';
+    shimHs.frequency.value = 5000;
+    shimHs.gain.value = 6;
+
+    const shimG = ctx.createGain();
+    shimG.gain.setValueAtTime(0, now + 0.20);
+    shimG.gain.linearRampToValueAtTime(0.06, now + 0.22);
+    shimG.gain.setValueAtTime(0.06, now + 0.40);
+    shimG.gain.linearRampToValueAtTime(0, now + 0.45);
+
+    shimCar.connect(shimShaper).connect(shimHs).connect(shimG).connect(ctx.destination);
+    shimCar.start(now + 0.20);
+    shimCar.stop(now + 0.46);
+    shimMod.start(now + 0.20);
+    shimMod.stop(now + 0.46);
+
+    // --- Layer 4: mid FM impact at 600 ms (carrier 500 Hz, ratio
+    //     1:3, high index), sharp cutoff at end ---
+    const impMod = ctx.createOscillator();
+    impMod.type = 'sine';
+    impMod.frequency.value = 500 * 3;
+    const impModG = ctx.createGain();
+    impModG.gain.setValueAtTime(500 * 6, now + 0.60);
+    impModG.gain.exponentialRampToValueAtTime(50, now + 0.75);
+    impMod.connect(impModG);
+
+    const impCar = ctx.createOscillator();
+    impCar.type = 'sine';
+    impCar.frequency.value = 500;
+    impModG.connect(impCar.frequency);
+
+    const impShaper = ctx.createWaveShaper();
+    impShaper.curve = distHeavy;
+    impShaper.oversample = '4x';
+
+    const impG = ctx.createGain();
+    impG.gain.setValueAtTime(0.14, now + 0.60);
+    impG.gain.setValueAtTime(0.14, now + 0.74);
+    impG.gain.linearRampToValueAtTime(0, now + 0.75);
+
+    impCar.connect(impShaper).connect(impG).connect(ctx.destination);
+    impCar.start(now + 0.60);
+    impCar.stop(now + 0.76);
+    impMod.start(now + 0.60);
+    impMod.stop(now + 0.76);
   };
 
   return sounds;

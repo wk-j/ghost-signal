@@ -34,13 +34,51 @@ There are **none**. This is a zero-tooling static HTML project.
 To verify a theme works, open `demo.html?theme=<theme-name>` in a browser,
 click "Click to initialise AudioContext", and test all 16 sounds interactively.
 
+## Sonic Differentiation Rules
+
+Each theme must have a **unique Sonic DNA** — a set of signature synthesis
+techniques that fundamentally change how sounds are built. Two themes must never
+sound like the same engine with different tuning.
+
+### What counts as differentiation
+
+- Different **primary synthesis technique** (FM synthesis vs subtractive vs
+  ring modulation vs waveshaping vs detuned unison)
+- Different **node topology** (different signal routing, not just different
+  parameter values on the same chain)
+- Different **envelope philosophy** (ultra-short percussive vs long reverberant
+  tails vs tape-wobble modulation)
+- Different **spectral character** (harsh harmonics vs pure tones vs filtered
+  noise-dominant vs lo-fi bandwidth-limited)
+
+### What does NOT count as differentiation
+
+- Same waveform/filter chain with different frequency values
+- Same envelope shape with different timing
+- Same node graph with a different oscillator type swapped in
+- Adding/removing a single noise layer while keeping the core identical
+
+### Existing Sonic DNA (update when adding themes)
+
+| Theme | Primary Waveform | Signature Effect | Transient | Envelope | Spectrum |
+|---|---|---|---|---|---|
+| Ghost Signal | FM-modulated square/saw | Ring modulation | Hard square impulse <3ms | Sharp attack, resonant ring-out | Mid-highs, harsh resonant peaks |
+| Orbit Deck | Pure sine, single oscillator | Feedback delay tails (distance) | Soft fade-in, no click | Long tails dissolving into void | Clean, LP-filtered, sterile |
+| Mach Line | FM percussion (high mod index) | Waveshaper distortion | Sub-2ms impulse, zero sustain | Ultra-short, bone-dry | Metallic > 4 kHz shimmer |
+| Chill City FM | Detuned triangle/sine pairs | Chorus beating + tape wobble LFO | Soft noise crackle onset | Medium, warm, wobbly | LP-capped at 3-4 kHz |
+
+Before creating a new theme, compare its planned Sonic DNA against this table.
+At least 3 of 5 columns must be fundamentally different from every existing theme.
+
 ## Creating a New Theme
 
 1. Create a directory: `<theme-name>/` (kebab-case)
 2. Copy `TEMPLATE.md` → `<theme-name>/<theme-name>.md`, fill in all `{{…}}` tokens
 3. Copy `TEMPLATE.js` → `<theme-name>/sounds.js`, then:
    - Fill in `meta` object: name, subtitle, colors (9 values), placeholder, sounds (16 entries)
+   - Fill in the `SONIC DNA` comment block with 5 signature techniques
    - Implement all 16 sound functions inside `createSounds(ctx, noiseBuffer)`
+   - Every sound must use at least one signature technique from the Sonic DNA
 4. Create `<theme-name>/index.html` as a thin redirect:
    ```html
    <!DOCTYPE html>

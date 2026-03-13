@@ -16,6 +16,18 @@
 
 ---
 
+## Sonic DNA
+
+| Technique | Description |
+|---|---|
+| **Primary waveform** | FM-modulated square/sawtooth — oscillator-modulating-oscillator creating complex sidebands and harsh harmonics |
+| **Signature effect** | Ring modulation — carrier × modulator for metallic, alien, inharmonic timbres. AM with zero DC offset. |
+| **Transient character** | Hard square-wave impulse, sub-3ms — violent chrome-snap onset |
+| **Envelope philosophy** | Sharp attack, resonant ring-out — initial hit lingers through filter resonance and FM decay |
+| **Frequency world** | Mid-highs (1–5 kHz) with harsh resonant peaks — aggressive bandpass and highshelf boosts |
+
+---
+
 ## Browser Sounds
 
 ### 1. HOVER
@@ -28,7 +40,7 @@
 
 **Concept** — A ghost-light scanning across a surface. Faint, airy, almost subliminal — like a proximity sensor pinging when your hand nears a holo-panel.
 
-**Synthesis** — Very short sine sweep (2 kHz to 3.2 kHz, ~60 ms) through a band-pass filter (Q = 8) with gentle gain envelope (attack 5 ms, release 55 ms). Mix in a whisper of white noise (gain -30 dB) to add air. The result should be barely-there — a soft electric whisper, not a beep.
+**Synthesis** — FM synthesis: a square-wave modulator (400→640 Hz) drives the frequency of a sine carrier (2 kHz→3.2 kHz) through a modulation gain that sweeps 200→500 Hz depth, generating complex sidebands that shift upward over 60 ms. The carrier feeds a resonant bandpass (2.4→3.6 kHz, Q 12) for a singing metallic ring-out. Gain envelope: 4 ms linear attack to 0.10, linear decay to zero by 60 ms. Pure FM — no noise layer.
 
 ---
 
@@ -40,7 +52,9 @@
 | **Base Freq** | 3000 Hz |
 | **Variants** | 1 |
 
-**Concept** — The inverse of HOVER — the scanner retracting. A tiny descending sine sweep (3 kHz to 1.8 kHz, ~50 ms) with a slightly faster release than HOVER so it vanishes quicker. Same band-pass approach, but the Q drops to 5 to make it feel softer / farther away. No noise layer — clean exit.
+**Concept** — The inverse of HOVER — the scanner retracting.
+
+**Synthesis** — Ring modulation: a sine carrier (3 kHz→1.8 kHz descending) is routed into a gain node whose `.gain` AudioParam is driven by a sine modulator at a non-integer frequency ratio (1170→700 Hz), producing inharmonic sum-and-difference partials that descend and compress. A highshelf filter (2.5 kHz, +6 dB) boosts the harsh presence range. Gain envelope: sub-3ms linear attack to 0.12, exponential decay to 0.001 by 50 ms. No noise, no FM — pure ring-mod ghost.
 
 ---
 
@@ -54,7 +68,7 @@
 
 **Concept** — A cybernetic button-press — tactile and decisive. Imagine a chrome relay snapping shut inside a prosthetic finger.
 
-**Synthesis** — Two layered transients: (a) a single-cycle square-wave pop at 800 Hz (1.25 ms pulse) and (b) a filtered noise burst (high-pass 4 kHz, 15 ms decay) for the metallic 'tick'. Combine through a compressor to glue them. Slight stereo spread (+/-10%) for width. Feels fast, snappy, and satisfying — never mushy.
+**Synthesis** — Two layers. (a) Hard square impulse: a square oscillator at 800 Hz, gain 0.25 with exponential decay to 0.001 in 2 ms — sub-2ms chrome snap. (b) Ring-mod metallic transient: a square carrier (1.8 kHz) routed through a gain node whose `.gain` is driven by a sine modulator (2.3 kHz), producing inharmonic sidebands (sum 4.1 kHz, diff 500 Hz). The ring-mod output feeds a resonant bandpass (2.8 kHz, Q 15) for a singing metallic tail, with gain 0.18 decaying exponentially to 0.001 over 30 ms. No noise, no compressor — all character from ring mod and high-Q resonance.
 
 ---
 
@@ -68,7 +82,7 @@
 
 **Concept** — A heavier, more resonant version of CLICK — like confirming a critical system override on a Netrunner's deck.
 
-**Synthesis** — Layer CLICK's transient with a short triangle-wave body note at 440 Hz (attack 2 ms, sustain 40 ms, release 80 ms) fed through a low-pass filter (cutoff 1.2 kHz, resonance 6). Add subtle sub-bass (sine 80 Hz, 40 ms, gain -12 dB) for weight. The overall impression: a deep, authoritative 'chunk' that says 'action committed — no going back'.
+**Synthesis** — Three layers. (a) Hard square impulse: square oscillator at 900 Hz, gain 0.22 with exponential decay to 0.001 in 2 ms — sub-2ms chrome snap onset. (b) FM body: sawtooth modulator at 220 Hz drives a square carrier at 440 Hz through a modulation gain of 660 (mod index ~3), decaying exponentially to 80 over 120 ms. The high mod index generates rich harmonic sidebands that simplify as the mod depth falls. Output through a peaking filter (1.2 kHz, Q 4, +8 dB) for aggressive mid presence, gain envelope 2 ms attack to 0.25, held to 40 ms, exponential decay to 120 ms. (c) Sub-bass: sine at 55 Hz, gain 0.18, exponential decay over 60 ms for weight.
 
 ---
 
@@ -82,7 +96,7 @@
 
 **Concept** — A system coming online — power-up hum of a cybernetic implant activating.
 
-**Synthesis** — Two-stage sound. Stage 1 (0-30 ms): sharp attack transient — filtered noise burst (band-pass 3-5 kHz) to mimic the relay spark. Stage 2 (30-250 ms): ascending dual-oscillator tone (saw + sine, 220 Hz to 880 Hz) with a resonant low-pass sweep (cutoff 400 to 4000 Hz) that opens up like a neon tube flickering to life. Fade out with 100 ms release. Overall feel: bright, optimistic, energised.
+**Synthesis** — FM synthesis with rising modulation index. A square-wave modulator ascends (110→440 Hz) while its depth sweeps from near-zero (10) to high (1200), so the tone starts nearly pure and becomes increasingly complex and harsh as it climbs. The sawtooth carrier ascends 220→880 Hz in parallel. Output through a resonant bandpass (Q 8) that sweeps 400→3200 Hz, tracking the carrier's ascent. Gain envelope: 40 ms linear attack to 0.20, held to 150 ms, exponential decay to 250 ms. No noise, no transient layer — the rising FM mod index creates all the harmonic complexity.
 
 ---
 
@@ -96,7 +110,7 @@
 
 **Concept** — The inverse power-down — an implant going dormant.
 
-**Synthesis** — Descending tone (saw + sine, 880 Hz to 160 Hz) with a low-pass filter that closes (cutoff 4000 to 300 Hz) over ~200 ms. The tail is a short rumble: a sine at 60 Hz with 80 ms decay, like capacitors draining. Slight bit-crush (reduce sample-rate to 8 kHz for the last 50 ms) to add digital grit as the signal dies. Overall feel: dimming, winding-down, but still controlled.
+**Synthesis** — Two layers, FM + ring mod. (a) Descending FM: square modulator (440→80 Hz) with depth 800→40, driving a sawtooth carrier (880→160 Hz). The mod index collapses as the tone descends, so harmonics simplify toward the end. Gain 0.20 with exponential decay to 0.001 over 220 ms. (b) Ring-mod metallic tail: enters at 80 ms — sine carrier (1600→400 Hz) through a gain node modulated by a sine at 370 Hz, producing inharmonic partials. Output through a resonant bandpass (1.2 kHz, Q 10). Ring gain fades in to 0.12 by 100 ms then decays. The FM handles the power-down sweep; the ring mod adds a metallic ghost in the tail.
 
 ---
 
@@ -110,7 +124,7 @@
 
 **Concept** — Shares DNA with FEATURE_SWITCH_ON but sounds more constrained, like a pressure clamp engaging.
 
-**Synthesis** — Same ascending dual-oscillator core but the frequency sweep is narrower (300 Hz to 600 Hz) and the resonant filter peaks harder (Q = 12) to create a 'squeezed' resonance. Add a short ring-mod effect (carrier 1.5 kHz, 40 ms) at the onset for a metallic 'clank'. Feel: power restrained, a gate locking into place.
+**Synthesis** — Two layers. (a) Hard square impulse onset: square oscillator at 1.5 kHz, gain 0.20, exponential decay to 0.001 in 3 ms — sub-3ms chrome snap. (b) Waveshaped ascending tone: sawtooth oscillator (300→800 Hz) routed through a WaveShaperNode with a soft-clip transfer curve (drive amount 8, 2x oversampling) that crushes the waveform into dense harmonics. Output through a resonant bandpass (Q 10) sweeping 600→2400 Hz. Gain envelope: 30 ms attack to 0.16, held to 140 ms, exponential decay to 200 ms. The waveshaper creates the "squeezed" compression character — harmonics are forced rather than generated by FM.
 
 ---
 
@@ -124,7 +138,7 @@
 
 **Concept** — The clamp releasing — mirrors FEATURE_SWITCH_OFF but with a brief outward 'burst' at the onset (white noise, 20 ms, gain -6 dB) as if pressure escapes.
 
-**Synthesis** — Descending tone (600 Hz to 200 Hz) through closing low-pass. Ends with a subtle spring-reverb impulse (convolver, ~80 ms metallic IR) to simulate the physical release of a latch. Feel: tension unwinding, air escaping a sealed chamber.
+**Synthesis** — Ring modulation with demodulation crossfade. A sawtooth carrier (2 kHz→400 Hz descending) is routed through a gain node whose `.gain` is driven by a sine modulator (1.8 kHz→200 Hz), creating dense inharmonic sidebands. Simultaneously, the carrier also feeds a "clean bypass" gain that fades in from 0 to 0.12 over 120 ms — as the ring-mod output (gain 0.22→0.01) decays, the clean signal emerges underneath, creating a transition from harsh metallic burst to pure descending tone. A highpass filter (200 Hz, Q 2) removes mud from the ring-mod output. Feel: explosive release that settles to clarity.
 
 ---
 
@@ -138,7 +152,7 @@
 
 **Concept** — A quick binary flip — smaller and simpler than FEATURE_SWITCH. Like flicking a micro-switch on a weapon attachment.
 
-**Synthesis** — A single square-wave blip (1.2 kHz, 8 ms on) immediately followed by a pitched-down echo (600 Hz, 15 ms, gain -8 dB). Both through a subtle high-shelf filter to keep the top end crispy. Feel: minimal, binary, no ambiguity — on or off.
+**Synthesis** — FM percussion. A square-wave modulator starts at 4 kHz and sweeps exponentially to 200 Hz in 8 ms with extreme mod depth (3000→10), driving a sine carrier that snaps from 1.2 kHz to 600 Hz in 10 ms. The massive initial FM depth creates a dense burst of sidebands that collapses almost instantly — an 808-style FM click with aggressive square-mod character. Output through a highshelf filter (3 kHz, +4 dB) for presence bite. Gain 0.22, exponential decay to 0.001 over 25 ms. Pure FM, no ring mod — the fastest sound in the palette.
 
 ---
 
@@ -152,7 +166,7 @@
 
 **Concept** — A new data-stream connecting — a jack plugging into a neural port.
 
-**Synthesis** — Three rapid micro-tones ascending in a tritone stack: sine blips at 660 Hz, 990 Hz, 1320 Hz, each 20 ms long, spaced 15 ms apart (total ~80 ms). Layer underneath: a short noise 'whoosh' (band-pass 2-6 kHz, 80 ms, gain -14 dB) to give a sense of data rushing in. Apply slight delay feedback (1 repeat, 30 ms, -18 dB) for digital echo. Feel: arrival, expansion, a new window into the net opening.
+**Synthesis** — Three FM-synthesized tones in rapid ascending sequence. Each step uses a sine carrier (660, 990, 1320 Hz) with a sine modulator at a different mod ratio per step (1.5×, 2.0×, 3.0×) and increasing mod index (1.0, 1.5, 2.0), so each blip has a distinct timbre — the sequence grows harmonically richer as it ascends. Each step is 25 ms with 15 ms spacing, total ~80 ms. Each FM carrier feeds a resonant bandpass (Q 8) tuned to 1.5× the carrier freq. Gain 0.18 per step, exponential decay to 0.001 within the step duration. No noise layer — pure FM arpeggiation.
 
 ---
 
@@ -166,7 +180,7 @@
 
 **Concept** — A data-stream severed — the jack unplugging. Inverse of TAB_INSERT.
 
-**Synthesis** — Three rapid descending blips (1320 Hz, 990 Hz, 660 Hz, each 15 ms, spaced 10 ms). Layer a very short 'zip' — saw-wave sweep from 4 kHz to 200 Hz in 50 ms with sharp exponential decay. End with a muted 'thud' (sine 100 Hz, 30 ms, gain -10 dB). Feel: disconnection, collapse, a portal snapping shut.
+**Synthesis** — Descending ring-mod cascade: three steps, each using a square carrier (1800, 1200, 660 Hz) ring-modulated by a sine at a non-integer frequency (2100, 1500, 900 Hz). The ring-mod topology (carrier→gain node, modulator→gain.gain) produces inharmonic sum/difference partials per step. Each step is 20 ms, spaced 12 ms apart. Output per step through a bandpass (Q 6) tuned to the carrier frequency. Gain 0.16, exponential decay to 0.001 within each step. A sub-bass thud (sine 80 Hz, gain 0.12, 40 ms decay) enters at 40 ms to anchor the collapse. The alien metallic rattle comes entirely from ring-mod partials — no FM, no noise.
 
 ---
 
@@ -180,7 +194,7 @@
 
 **Concept** — The command line activating — a Netrunner's HUD responding to a voice prompt.
 
-**Synthesis** — A bright, glassy ping — triangle wave at 1760 Hz (A6) with fast attack (2 ms) and medium release (150 ms). Modulate with a very slow LFO (6 Hz, depth +/-20 Hz) during the release to create a gentle shimmer / vibrato as the cursor blinks alive. Add a parallel high-frequency noise layer (high-pass 8 kHz, gain -24 dB, 60 ms) for sparkle. Feel: readiness, focus, the interface awaiting your input.
+**Synthesis** — Ring-mod bell. A triangle carrier at 1760 Hz (odd-harmonic foundation) is ring-modulated by a sine at 2640 Hz (ratio 1.5 — a fifth relationship), producing bell-like inharmonic partials at sum (4400 Hz) and difference (880 Hz) frequencies. The ring-mod output feeds a peaking filter (3.5 kHz, Q 12, +6 dB) that resonates in the upper partials, creating a sustained metallic shimmer. Gain envelope: sub-2ms linear attack to 0.22, exponential decay to 0.001 over 160 ms. No LFO, no noise — the bell character comes entirely from ring-mod partials and high-Q peaking resonance.
 
 ---
 
@@ -196,7 +210,7 @@
 
 **Concept** — Holo-keyboard key-press — each stroke taps a projected light key floating above a desk. Needs to feel physical despite being virtual.
 
-**Synthesis** — A micro noise-burst (band-pass 3-7 kHz, 12 ms) for the 'tap', plus a very faint pitched body (sine, 15 ms, gain -18 dB) whose frequency is randomised per variant (pool: 1000-2400 Hz in 80 Hz steps). Each variant picks a different body frequency and a slightly different noise filter centre (+/-500 Hz jitter) so that rapid typing sounds organic, not machine-gun repetitive. Apply a tiny room reverb (30 ms tail) for spatial presence. Feel: light, crispy, tactile, like rain on a tin awning.
+**Synthesis** — FM micro-percussion with 19 timbral variants. Each variant selects a unique irrational mod ratio from a pool (1.41, 1.73, 2.23, 2.65, 3.14, etc. — avoiding integer ratios to prevent repetition) and a base frequency (1200–2640 Hz in 80 Hz steps). A square-wave modulator at `baseFreq × modRatio` drives the frequency of a sine carrier at `baseFreq`, with initial mod depth of `baseFreq × 0.8` decaying exponentially to 10 in 12 ms. The rapid FM depth collapse creates a percussive transient whose timbre varies per variant. Output through a highshelf (4 kHz, +3 dB) for click presence. Gain 0.12, exponential decay to 0.001 in 18 ms. No noise — all character from FM.
 
 ---
 
@@ -210,7 +224,7 @@
 
 **Concept** — Deletion — erasing a character from the holo-display. Slightly lower-pitched and softer than TYPING_LETTER to convey 'removal' rather than 'creation'.
 
-**Synthesis** — A short square-wave pulse at 600 Hz (8 ms) with immediate exponential decay, followed by a faint reverse-noise envelope (noise gain ramps from -30 dB to -18 dB over 20 ms then cuts — creates a subtle 'sucking back' sensation). Low-pass at 3 kHz to keep it dull compared to letter keys. Feel: a small retraction, like a pixel dissolving backward.
+**Synthesis** — Reverse FM: the modulation index starts at maximum and collapses to zero, so harmonics "suck inward" and simplify — the opposite of a typical FM attack. A square-wave modulator at 1.8 kHz drives a sine carrier (800→500 Hz descending) with mod depth starting at 2000 and decaying exponentially to 5 in 25 ms — a harmonic implosion. Output through a lowpass filter (4 kHz, Q 6) to contain the initial burst. Gain 0.15, exponential decay to 0.001 in 28 ms. The sound feels like data retracting because the spectral content narrows rather than expands.
 
 ---
 
@@ -224,7 +238,7 @@
 
 **Concept** — Command confirmed — the 'execute' key. Heavier and more resonant than any letter key.
 
-**Synthesis** — A two-part sound. (a) Attack: hard transient — mix of square-wave pop (500 Hz, 3 ms) and noise burst (band-pass 2-5 kHz, 10 ms). (b) Body: a descending saw-wave tone (500 Hz to 300 Hz, 60 ms) through a resonant low-pass (Q = 6, cutoff 1.5 kHz) to give a weighty 'thonk'. Add sub (sine 80 Hz, 30 ms, gain -8 dB) for gravitas. Feel: decisive, final, heavier than other keys — a stamp of confirmation.
+**Synthesis** — Full DNA showcase in miniature — three simultaneous layers. (a) Hard square impulse: square at 600 Hz, gain 0.22, exponential decay in 2 ms — sub-2ms chrome snap. (b) Ring-mod transient: square carrier (1.4 kHz) through a gain node modulated by sine (1.85 kHz), producing inharmonic metallic partials. Output through a resonant bandpass (2.2 kHz, Q 8), gain 0.16, exponential decay in 25 ms. (c) FM body: sawtooth modulator at 250 Hz driving a square carrier (500→300 Hz descending) with mod depth 500→30, through a lowpass (2 kHz, Q 6). Gain 0.18, exponential decay over 70 ms. Plus a sub-bass sine at 65 Hz (gain 0.20, 40 ms decay). The heaviest keyboard sound — layered FM + ring mod + impulse.
 
 ---
 
@@ -238,7 +252,7 @@
 
 **Concept** — The space-bar — the widest key, producing a broader, more hollow sound than a letter key.
 
-**Synthesis** — A filtered noise 'puff' (band-pass centred at 1.5 kHz, Q = 2 for width, 20 ms) — wider and more diffuse than TYPING_LETTER's tight tap. Add a subtle pitched undertone (triangle wave, 350 Hz, 15 ms, gain -14 dB) for the bar's resonant cavity. Roll off highs above 5 kHz to keep it mellow. Feel: a soft, broad thump — like tapping a padded surface.
+**Synthesis** — FM with very low modulation index for a gentle, breathy tone. A sine modulator at 500 Hz drives a sine carrier at 800 Hz with mod depth 200→10 (mod index ~0.4, decaying exponentially in 20 ms). The low mod index produces only first-order sidebands (300 Hz, 1300 Hz) that decay quickly to a near-pure sine. Output through a lowpass filter (3 kHz, Q 1) — no harshness. Gain 0.10, exponential decay to 0.001 in 25 ms. The softest sound in the palette — sine-on-sine FM creates a mellow puff without the aggression of square or sawtooth modulators.
 
 ---
 
@@ -254,4 +268,4 @@
 
 **Concept** — Ghost frequency awakening — something stirs in the dark network. A deep drone emerges from silence, its filter slowly opening like an eye, joined after a beat by a perfect fifth that floats above like a signal from an unknown source. A slow tremolo breathes life into the tone. Dark, low-passed noise and deep sub-bass fill the space below. The feeling: waking up inside a machine that already knows you're there.
 
-**Synthesis** — Primary drone: sine at 165 Hz, low-pass filter sweeping 300 → 900 Hz over 600 ms then closing to 200 Hz by 1.2 s (Q 4), gain fading in over 350 ms to 0.18, holding, then decaying. Perfect fifth: sine at 248 Hz enters at 300 ms, through low-pass 600 Hz (Q 2), peaks at gain 0.10 around 600 ms, decays to 1.2 s. LFO: sine at 2.5 Hz modulates drone gain by 0.04 for tremolo. Noise: low-passed at 1200 Hz, slow swell to gain 0.04 over 500 ms, decays over 1.1 s. Sub: sine at 55 Hz, fades in over 300 ms to 0.10, decays over 800 ms.
+**Synthesis** — Five-layer showcase of all DNA techniques. (1) FM drone: square modulator at 165 Hz drives a sawtooth carrier at 165 Hz. Mod depth rises from 50 (index ~0.3) to 660 (index ~4) over 700 ms then decays to 30 by 1.2 s — the drone starts near-pure and grows increasingly rich and harsh. Output through a resonant bandpass (Q 6) sweeping 300→1800→300 Hz. Gain: 300 ms fade-in to 0.16, held, exponential decay to 1.2 s. (2) Ring-mod harmonics: enters at 300 ms — sine carrier at 248 Hz (perfect fifth) through a gain node modulated by sine (370→520→200 Hz). Highshelf boost (+4 dB at 2 kHz) for presence. Gain fades in to 0.08 by 600 ms, decays to 1.2 s. (3) Waveshaped distortion: enters at 400 ms — sawtooth at 330 Hz through a WaveShaperNode (drive 12, 2x oversampling, soft-clip curve), then bandpass (2.4 kHz, Q 4). Gain peaks at 0.06 by 600 ms, decays by 1.1 s. (4) Hard square sub-pulse: square at 55 Hz, gain 0.18, exponential decay in 3 ms — sub-3ms ignition impulse. Plus a sustained sub-bass sine at 55 Hz fading in to 0.10 over 250 ms, decaying by 800 ms. (5) LFO tremolo: sine at 2.5 Hz modulates the drone gain by ±0.04 for breathing feel throughout.
