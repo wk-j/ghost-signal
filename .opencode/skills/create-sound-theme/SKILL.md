@@ -13,7 +13,7 @@ cohesive sound palette.
 
 ## Critical Rules (Read First!)
 
-1. **Every theme has exactly 3 files**: `<theme-name>.md` (spec), `sounds.js` (ES module), and `index.html` (thin redirect)
+1. **Every theme has exactly 4 files**: `<theme-name>.md` (spec), `sounds.js` (ES module), `index.html` (thin redirect), and `cover.png` (cover image)
 2. **Every theme has exactly 16 sounds** — no more, no fewer
 3. **Web Audio API only** — no sample files, no `<audio>` elements, no fetch
 4. **Sound logic goes in `sounds.js`** — the shared `demo.html` handles all UI
@@ -34,11 +34,13 @@ Image provided
 │
 ├─► 3. MAP visible objects → sonic metaphors for all 16 sounds
 │
-├─► 4. WRITE spec file (<theme-name>.md)
+├─► 4. GENERATE cover image (see Cover Image Generation below)
 │
-├─► 5. WRITE sounds.js ES module with meta + createSounds factory
+├─► 5. WRITE spec file (<theme-name>.md)
 │
-└─► 6. WRITE thin index.html redirect
+├─► 6. WRITE sounds.js ES module with meta + createSounds factory
+│
+└─► 7. WRITE thin index.html redirect
 ```
 
 ### Image Analysis Procedure
@@ -130,6 +132,29 @@ Examples: "Chill City FM", "Ghost Signal", "Neon Arcade", "Velvet Terminal",
 "Rust Workshop", "Crystal Station"
 
 Use kebab-case for the directory: `chill-city-fm`, `ghost-signal`, `neon-arcade`
+
+### Cover Image Generation
+
+Every theme needs a `cover.png` — a visual identity image that captures the
+theme's mood, atmosphere, and color palette. Generate it using an image
+generation tool after the theme identity and color palette have been derived.
+
+**Prompt construction guidelines:**
+
+1. **Subject** — A scene or composition that embodies the theme's mood and setting
+   (e.g. "rain-slick neon alley at night" for a cyberpunk theme, "high-altitude
+   space gantry above cloud layer" for a space theme)
+2. **Materials & textures** — Reference the dominant materials from the Material
+   Palette analysis (metal, wood, glass, fabric, etc.)
+3. **Color direction** — Specify the accent colors and overall palette derived in
+   step D (Color Palette → CSS Variables)
+4. **Atmosphere** — Match the lighting and atmosphere from step E
+5. **Style** — Painterly, cinematic, or illustrative — avoid photorealism and
+   text/lettering
+6. **Aspect ratio** — Landscape (16:9 or similar)
+
+Save the generated image as `<theme-name>/cover.png`. The concept file
+(`<theme-name>.md`) references it via `![Theme Name cover](cover.png)`.
 
 ## Step 1: Derive Theme Identity
 
@@ -230,7 +255,13 @@ Follow `TEMPLATE.js` structure. The module exports `{ meta, createSounds }`:
 The `createSounds(ctx, noiseBuffer)` factory receives an `AudioContext` and
 `noiseBuffer(duration)` helper. It returns an object of 16 sound functions.
 
-### 3d. Write `index.html`
+### 3d. Generate `cover.png`
+
+Generate a cover image using an image generation tool. Use the theme's mood,
+setting, materials, and color palette to construct the prompt (see Cover Image
+Generation above). Save as `<theme-name>/cover.png`.
+
+### 3e. Write `index.html`
 
 Create a thin redirect file:
 

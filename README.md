@@ -8,9 +8,10 @@ sounds, loaded by a shared demo page.
 
 | Theme | Mood |
 |---|---|
-| [Ghost Signal](demo.html?theme=ghost-signal) | Cyberpunk-noir — chrome, neon, and rain |
-| [Chill City FM](demo.html?theme=chill-city-fm) | Warm lo-fi retro — CRT, VHS, boombox, wood paneling |
-| [Orbit Deck](demo.html?theme=orbit-deck) | Near-future EVA — spacesuit seals, visor HUD, radio comms |
+| [Ghost Signal](ghost-signal/ghost-signal.md) | Cyberpunk-noir — chrome, neon, and rain |
+| [Orbit Deck](orbit-deck/orbit-deck.md) | Near-future EVA — spacesuit seals, visor HUD, radio comms |
+| [Mach Line](mach-line/mach-line.md) | Cold supersonic — stealth aircraft, carbon-fiber, radar pings |
+| [Chill City FM](chill-city-fm/chill-city-fm.md) | Warm lo-fi retro — CRT, VHS, boombox, wood paneling |
 
 ## Try It
 
