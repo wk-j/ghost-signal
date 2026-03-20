@@ -67,6 +67,7 @@ sound like the same engine with different tuning.
 | Mach Line | FM percussion (high mod index) | Waveshaper distortion | Sub-2ms impulse, zero sustain | Ultra-short, bone-dry | Metallic > 4 kHz shimmer |
 | Chill City FM | Detuned triangle/sine pairs | Chorus beating + tape wobble LFO | Soft noise crackle onset | Medium, warm, wobbly | LP-capped at 3-4 kHz |
 | Deep Glyph | Additive sine partials (3-6 harmonics) | Comb filter resonance (delay feedback) | Granular noise bursts 5-8ms | Staccato body + spectral tail | Wide partials spread 150 Hz-6 kHz |
+| Neon Pulse | Pulse-Width Modulated (PWM) Square | Logic Gate Shimmer (gain LFO) | Frequency-Slide "Blip" 2-4ms | Rhythmic Staccato, zero sustain | Neon-Bright, resonant fundamental |
 
 Before creating a new theme, compare its planned Sonic DNA against this table.
 At least 3 of 5 columns must be fundamentally different from every existing theme.
